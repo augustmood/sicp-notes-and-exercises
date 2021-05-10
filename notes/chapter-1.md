@@ -185,3 +185,118 @@ A procedure is a pattern for the *local evolution* of a computational process. I
  stage of the process is built upon the previous stage.
 
 ### 1.2.1 Linear Recursion and Iteraion
+- Provide two different way to compute `6!`, One is linear recursive process:
+    ```lisp
+    (define (factorial n)
+    (if (= n 1)
+        1
+        (* n (factorial (- n 1)))))
+    ```
+    The evaluation be like:
+    ```lisp
+    (factorial 6)
+    (* 6 (factorial 5))
+    (* 6 (* 5 (factorial 4)))
+    (* 6 (* 5 (* 4 (factorial 3))))
+    (* 6 (* 5 (* 4 (* 3 (factorial 2)))))
+    (* 6 (* 5 (* 4 (* 3 (* 2 (factorial 1))))))
+    (* 6 (* 5 (* 4 (* 3 (* 2 1)))))
+    (* 6 (* 5 (* 4 (* 3 2))))
+    (* 6 (* 5 (* 4 6)))
+    (* 6 (* 5 24))
+    (* 6 120)
+    720
+    ```
+    The expansion occurs as the process builds up a chain of *deferred operations*. The contraction 
+    occurs as the operations are actually performed. This type of process, characterized by a chain 
+    of deferred operations, is called a *recursive process*. Carrying out this process requires that
+    the interpreter keep track of teh operations to be performed later on. In the computation of n!,
+    the length of the chain of deferred multiplications, and hence the amount of information needed 
+    to keep track of it, grows linearly with n (is proportional to n), just like the number of 
+    steps. Such a process is called a *linear recursive process*.
+
+    Another is linear iterative process:
+    ```lisp
+    (define (factorial n)
+    (fact-iter 1 1 n))
+
+    (define (fact-iter product counter max-count)
+    (if (> counter max-count)
+        product
+        (fact-iter (* counter product)
+                    (+ counter 1)
+                    max-count)))
+    ```
+
+    The evaluation be like:
+    ```lisp
+    (factorial 6)
+    (fact-iter   1   1   6)
+    (fact-iter   1   2   6)
+    (fact-iter   2   3   6)
+    (fact-iter   6   4   6)
+    (fact-iter  24   5   6)
+    (fact-iter 120   6   6)
+    (fact-iter 720   7   6)
+    ```
+    - *Iterative process*: a process is one whose state can be summarized by a fixed number of
+    *state variables*.
+    - *State variables*: a fixed number which in the iterative process and can be related to the 
+    variables.
+    - *Linear iterative process*: the process whose number of steps required grows linearly with n.
+
+### 1.2.2 Tree Recursion
+
+#### Example: Counting change
+
+### 1.2.3 Orders of Growth
+
+### 1.2.4 Exponentiation
+
+### 1.2.5 Greatest Common Divisors
+
+### 1.2.6 Example: Testing for Primality
+
+#### Searching for divisors
+
+```lisp
+(define (smallest-divisor n)
+  (find-divisor n 2))
+
+(define (find-divisor n test-divisor)
+  (cond ((> (square test-divisor) n) n)
+        ((divides? test-divisor n) test-divisor)
+        (else (find-divisor n (+ test-divisor 1)))))
+
+(define (divides? a b)
+  (= (remainder b a) 0))
+
+(define (prime? n)
+  (= n (smallest-divisor n)))
+```
+
+- test-devisor cannot be larger than `(sqrt n)` so the number of steps required to identify a prime
+number is `\theta((sqrt(n)))`
+
+#### The Fermat test
+
+```lisp
+(define (expmod base exp m)
+  (cond ((= exp 0) 1)
+        ((even? exp)
+         (remainder (square (expmod base (/ exp 2) m))
+                    m))
+        (else
+         (remainder (* base (expmod base (- exp 1) m))
+                    m))))        
+
+(define (fermat-test n)
+  (define (try-it a)
+    (= (expmod a n n) a))
+  (try-it (+ 1 (random (- n 1)))))
+
+(define (fast-prime? n times)
+  (cond ((= times 0) true)
+        ((fermat-test n) (fast-prime? n (- times 1)))
+        (else false)))
+```
