@@ -39,8 +39,41 @@
               (search-for-primes (+ 2 start) ends)))
         ))
 
-(timed-prime-test 1009)
+; (define (smallest-divisor n)
+;   (find-divisor n 2))
+; (define (find-divisor n test-divisor)
+;   (cond ((> (square test-divisor) n))
+;         ((divides? test-divisor n) test-divisor )
+;         (else (find-divisor n (next test-divisor)))))
+; (define (divides? a b)
+;   (= (remainder b a) 0))
 
-(search-for-primes 1000 1100)
-(search-for-primes 10000 10100)
-(search-for-primes 100000 100100)
+; (define (next n)
+;     (if (= n 2)
+;         3
+;         (+ n 2)))
+
+(smallest-divisor 1009)
+(timed-prime-test 1009)
+(smallest-divisor 1013)
+(timed-prime-test 1013)
+(smallest-divisor 1019)
+(timed-prime-test 1019)
+
+(newline)
+
+(smallest-divisor 10007)
+(timed-prime-test 10007)
+(smallest-divisor 10009)
+(timed-prime-test 10009)
+(smallest-divisor 10037)
+(timed-prime-test 10037)
+
+(newline)
+
+(smallest-divisor 100003)
+(timed-prime-test 100003)
+(smallest-divisor 100019)
+(timed-prime-test 100019)
+(smallest-divisor 100019)
+(timed-prime-test 100019)
