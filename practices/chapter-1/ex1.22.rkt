@@ -21,10 +21,10 @@
 
 (define (start-prime-test n start-time)
   (cond ((prime? n)
-      (begin 
-        (display n)
-        (report-prime (- (runtime) start-time))
-        ))))
+         (begin 
+           (display n)
+           (report-prime (- (runtime) start-time))
+           ))))
 (define (report-prime elapsed-time)
   (display " *** ")
   (display elapsed-time)
@@ -35,12 +35,14 @@
   (if (even? start)
       (search-for-primes (+ start 1) ends)
       (cond ((or (> start ends)) (display "end") (newline))
-        (else (timed-prime-test start) 
-              (search-for-primes (+ 2 start) ends)))
-        ))
+            (else (timed-prime-test start) 
+                  (search-for-primes (+ 2 start) ends)))
+      ))
 
-(timed-prime-test 1009)
 
 (search-for-primes 1000 1100)
 (search-for-primes 10000 10100)
 (search-for-primes 100000 100100)
+(search-for-primes 1000000 1000100)
+
+;; roughtly sqrt(10)

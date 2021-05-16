@@ -215,7 +215,7 @@
 
     ((remainder 
             (remainder 206 40)
-            (remainder 40 (remainder 206 40))) ;; a
+            (remainder 40 (remainder 206 40)))) ;; a
 
     (gcd 
         (remainder 
@@ -266,7 +266,7 @@
 
     ((remainder 
             (remainder 206 40)
-            (remainder 40 (remainder 206 40))) ;; a
+            (remainder 40 (remainder 206 40)))) ;; a
 
     (gcd 
         (remainder 
