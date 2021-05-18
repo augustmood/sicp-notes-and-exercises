@@ -300,3 +300,22 @@ number is `\theta((sqrt(n)))`
         ((fermat-test n) (fast-prime? n (- times 1)))
         (else false)))
 ```
+
+## 1.3 Formulating Abstractions with Higher-Order Procedures
+
+One of the things  we should demand from a powerful programming language is the ability to build 
+abstractions by assigining names to common patterns and then to work in terms of the abstractions 
+directly. 
+
+Procedures that manipulate procedures are called *higer-order procedures*.
+
+### 1.3.1 Procedures as Arguments
+- The template concluded by the three examples's pattern:
+    ```lisp
+    (define (<name> a b)
+        (if (> a b)
+            0
+            (+ (<term> a)
+                (<name> (<next> a) b))))
+    ```
+    
