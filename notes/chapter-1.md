@@ -318,4 +318,122 @@ Procedures that manipulate procedures are called *higer-order procedures*.
             (+ (<term> a)
                 (<name> (<next> a) b))))
     ```
-    
+
+### 1.3.2 Constructing Procedures Using `Lambda`
+Rather than define some procedures by `(define)`, it would be more convenient to have a way to 
+directly specify their functionality by using `lambda`, for example:
+```lisp
+(lambda (x) (+ x 4))
+```
+and
+```lisp
+(lambda (x) (/ 1.0 (* x (+ x 2))))
+```
+
+In general, `lambda` is used to create procedures in the same way as `define`, except that no name 
+is specified for the procedures, template be like:
+```lisp
+(lambda (<formal-parameters>) <body>)
+```
+
+we can read a lamda expression as follows
+```lisp
+(lambda             (x)                     (+          x       4))
+  THE PRODUCRE      OF AN ARGUMENT OF X   THAT ADDS     X  &    4
+```
+
+a `lambda` expression can be used as the operator in a combination such as:
+```lisp
+((lambda (x y z) (+ x y (square z))) 1 2 3)
+```
+
+#### Using `let` to create local variables
+For examples:
+```lisp
+(define (f x y)
+  (define (f-helper a b)
+    (+ (* x (square a))
+       (* y b)
+       (* a b)))
+  (f-helper (+ 1 (* x y)) 
+            (- 1 y)))
+```
+We could use a `lambda` expression to specify an anoymous procedures for binding our local 
+variables:
+```lisp
+(define (f x y)
+  ((lambda (a b)
+     (+ (* x (square a))
+        (* y b)
+        (* a b)))
+   (+ 1 (* x y))
+   (- 1 y)))
+```
+But we could use `let` to make it more convenient:
+```lisp
+(define (f x y)
+  (let ((a (+ 1 (* x y)))
+        (b (- 1 y)))
+    (+ (* x (square a))
+       (* y b)
+       (* a b))))
+```
+The general form of a `let` expression is:
+```lisp
+(let ((<var1> <exp1>)
+      (<var2> <exp2>)
+      
+      (<varn> <expn>))
+   <body>)
+```
+which can be thought of as saying
+```
+let	<var1> have the value <exp1> and
+    <var2> have the value <exp2> and
+    .
+    .
+    .
+    <varn> have the value <expn>
+in	<body>
+```
+The first part of the `let` expression is a list of name-expression pairs. When the `let` is 
+evaluated, each name is associated with the value of the corresponding expression. The body of the 
+`let` is evaluated with these names bound as local variables. The way this happens is that the `let`
+expression is interpreted as an alternate syntax for
+```lisp
+((lambda (<var1> ...<varn>)
+    <body>)
+ <exp1>
+ 
+ <expn>)
+```
+
+A `let` expression is simply syntactic sugar for the underlying `lambda` application.
+We can see from this equivalence that the scope of a variable specified by a `let` expression is the
+body of the `let`. This implies that:
+- `let` allows one to bind variables as locally as possible to where they are to be used. For 
+    example, if the value of x is 5, the value of expression
+    ```lisp
+    (+ (let ((x 3))
+            (+ x (* x 10)))
+        x)
+    ```
+    is 38.
+- The variables's values are computed outside the `let`. This matters when the expressions that 
+    provide the values for the local variables depend upon variables having the same names as the 
+    local variables themselves. For example, if the value of `x` is 2, the expression
+    ```lisp
+    (let ((x 3)
+          (y (+ x 2)))
+        (* x y))
+    ```
+    will have the value 12. inside body of the `let`, `x` will be 3 and `y` will be 4 (which is the
+    outer `x` plus 2).
+
+We prefer to use internal `define` only for internal procedures, and for defining local variables,
+we prefer `let`.
+
+### 1.3.3 Procedures as General Methods
+#### Finding roots of equations by the half-interval method
+
+#### Finding fixed points of functions
