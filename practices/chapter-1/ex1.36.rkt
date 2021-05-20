@@ -16,6 +16,11 @@
 (define (log-related x)
     (define (average n m)
         (/ (+ m n) 2))
-    (fixed-point (lambda (y) (average y (/ (log 1000) (log x))))))
+    (let ((x (if (= x 1)
+                (+ x 1)
+                x)))
+    (fixed-point (lambda (y) (average y (/ (log 1000) (log y)))) x)))
+
+(log-related 1)
 
     
