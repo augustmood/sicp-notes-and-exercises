@@ -79,3 +79,4 @@
 (check-expect (relative-prime-product-1 10) 189)
 (check-expect (relative-prime-product-2 10) 189)
 (test)
+
