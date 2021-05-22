@@ -22,5 +22,3 @@
     (fixed-point (lambda (y) (average y (/ (log 1000) (log y)))) x)))
 
 (log-related 1)
-
-    

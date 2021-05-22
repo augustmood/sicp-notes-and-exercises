@@ -16,10 +16,11 @@
 ;; phi = 1 + 1/ phi
 
 (define (golden-ratio x)
+  (let ((x (* 1.0 x)))
     (define (average n m)
-        (/ (+ m n) 2))
+      (/ (+ m n) 2))
     (fixed-point (lambda (y) (average y (+ 1 (/ 1 y))))
-    x))
+                 x)))
 
 ;; test
 (define (golden-calc x)
