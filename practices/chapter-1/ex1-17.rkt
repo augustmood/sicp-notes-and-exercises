@@ -7,7 +7,7 @@
 
 (define (halve i)
     (/ i 2))
-q
+
 (define (fast-new-mul a b)
     (cond ((= b 0) 0)
           ((even? b) (double (fast-new-mul a (halve b))))

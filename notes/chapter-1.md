@@ -437,3 +437,28 @@ we prefer `let`.
 #### Finding roots of equations by the half-interval method
 
 #### Finding fixed points of functions
+
+### 1.3.4 Procedures as Returned Values
+Example in the book:
+```lisp
+(define (average-damp f)
+    ((lambda (x) (average x (f x)))))
+```
+We can use `average-damp` to reformulate the sqaure-root procedure as follows:
+```lisp
+(define (sqrt x)
+    (fixed-point (average-damp (lambda (y) (/ x y)))
+                1.0))
+```
+this formulation makes explicit the three ideas in the method: fixed-point search, average damping, 
+and the function `y -> x/y`.
+
+#### Newton's method
+
+#### Abstraction and first-class procedures
+- Elements with the fewest restrictions are said to have first-class status. Some of the ``right and
+priviledges`` of first-class elements are:
+    - They may be named by variables.
+    - They may be passed as arguments to procedures.
+    - They may be returned as the results of procedures.
+    - They may be included in data structures.

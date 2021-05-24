@@ -23,10 +23,11 @@
             next
             (try next))))
     (try first-guess)))
-  
-;; x^3 + a * x^2 + b * x + c
 
-(define (cubic a b c)
-  (lambda (x) (+ (* x x x) (* a (* x x)) (* b x) c)))
+(define (inc i)
+    (+ i 1))
 
-(newtons-method (cubic 1 2 3) 1)
+(define (double f)
+    (lambda (i) (f (f i))))
+
+(((double (double double)) inc) 5)
