@@ -37,3 +37,5 @@ It takes two arguments and returns a compound data object that contains the two 
 ### 2.1.2 Abstraction Barriers
 
 ### 2.1.3 What is Meant by Data?
+
+### 2.1.4 Extended Exercise: Interval Arithmetic
