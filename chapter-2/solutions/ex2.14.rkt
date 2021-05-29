@@ -80,8 +80,16 @@
 (define (print-interval-c-p i)
   (display "(")
   (display (center i))
-  (display ",")
+  (display ", ")
   (display (percent i))
+  (display ")")
+  (newline))
+
+(define (print-interval i)
+  (display "(")
+  (display (lower-bound i))
+  (display ",")
+  (display (upper-bound i))
   (display ")")
   (newline))
 
@@ -94,10 +102,29 @@
     (div-interval one
                   (add-interval (div-interval one r1)
                                 (div-interval one r2)))))
-    
-(define a (make-interval 2 10))
-(define b (make-interval 4 8))
 
+(define a (make-center-percent 10 0.5))
+(define b (make-center-percent 20 0.1))
 
-;; to be finished...
+(print-interval-c-p (par1 a b))
+(print-interval-c-p (par2 a b))
+(newline)
+(print-interval-c-p (div-interval a a))
+;; (1.6666666666666667, 0.7999999999999999)
+(print-interval-c-p (div-interval a b))
+; (0.5303030303030303, 0.5714285714285714)
 
+(newline)
+(print-interval-c-p (par1 (div-interval a a) (div-interval a b)))
+(print-interval-c-p (par2 (div-interval a a) (div-interval a b)))
+
+;; Lem is right, by the definition mentioned in our codes above, our interval A is [5, 15],
+;; A/A will be like: A * (one / A) reference to our definition, since 1/A is [1/15, 1/5], and 
+;; we could get the result of A / A = A * (1 / A) = [1/3, 3] (1.6666666666666667, 0.7999999999999999),
+;; While as the expection, a variable divided by itself should result in 1 instead of the result we 
+;; get. Our interval B is [18, 22], A / B should be A * (1 / B) = [5, 15] * [1/22, 1/18] = [5/22, 5/6]
+;; (0.5303030303030303, 0.5714285714285714). IMO, in the expression A/A, the funciton treats A in the 
+;; denominator and A in the numerator as different vairables, (A is not fixed tho, but they should be 
+;; the same regardless of where it is). Threfore, as we see in function par1, both R1 and R2 appear in
+;; numerator and denominator, the different way the functions treated the same variables in different 
+;; position leads to an error.
