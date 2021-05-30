@@ -145,4 +145,13 @@ Scheme. The code in above example is equivalent to:
 
 ## 2.2.2 Hierarchical Structures
 
-- 
+- Scheme provides primitive predicate `pair?`
+
+- The book gives an example to count leaves:
+    ```lisp
+    (define (count-leaves x)
+        (cond ((null? x) 0)  
+                ((not (pair? x)) 1)
+                (else (+ (count-leaves (car x))
+                        (count-leaves (cdr x))))))
+    ```
