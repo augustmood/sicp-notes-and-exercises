@@ -1,6 +1,4 @@
-# Chapter 2
-
-## 2.1 Introduction to Data Abstraction
+# Chapter 2.1 Introduction to Data Abstraction
 
 - The analogous notion for compound data is called *data abstraction*. Data abstraction is a 
 methodolodgy that enables us to isolate how a compound data object is used from the details of how 
@@ -9,9 +7,9 @@ it is constructed from more primitive data objects.
 - The basic idea of data abstraction is to structure the programs that are to use compound data 
 objects so that they operate on ``abstract data``. 
 
-### 2.1.1 Example: Arithmetic Operations for Rational Numbers
+## 2.1.1 Example: Arithmetic Operations for Rational Numbers
 
-#### Pairs
+### Pairs
 
 - to enable us to implement the concrete level of our data abstraction, our language provides a 
 compound structure called a *pair*, which can be constructed with the priitive procedure `cons`. 
