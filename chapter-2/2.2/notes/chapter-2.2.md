@@ -155,3 +155,150 @@ Scheme. The code in above example is equivalent to:
                 (else (+ (count-leaves (car x))
                         (count-leaves (cdr x))))))
     ```
+
+    ### Mapping over trees
+
+    - The book gives an example:
+    
+        `Scale-tree` in recursive way:
+
+        ```lisp
+        (define (scale-tree tree factor)
+            (cond ((null? tree) nil)
+                    ((not (pair? tree)) (* tree factor))
+                    (else (cons (scale-tree (car tree) factor)
+                                (scale-tree (cdr tree) factor)))))
+        > (scale-tree (list 1 (list 2 (list 3 4) 5) (list 6 7))
+                        10)
+        > (10 (20 (30 40) 50) (60 70))
+        ```
+
+        We can implement this by using `map`:
+
+        ```lisp
+        (define (scale-tree tree factor)
+            (map (lambda (sub-tree)
+                    (if (pair? sub-tree)
+                        (scale-tree sub-tree factor)
+                        (* sub-tree factor)))
+                tree))
+        ```
+
+## 2.2.3 Sequences as Conventional Interfaces
+
+- *`conventional interfaces`*
+
+    ### Sequence Operations
+    - `filter`:
+        ```lisp
+        (define (filter predicate sequence)
+            (cond ((null? sequence) nil)
+                  ((predicate (car sequence))
+                    (cons (car sequence)
+                        (filter predicate (cdr sequence))))
+                  (else (filter predicate (cdr sequence)))))
+        ```
+    
+    - `accumulate`:
+        ```lisp
+        (define (accumulate op initial sequence)
+            (if (null? sequence)
+                inital
+                (op (car sequence)
+                    (accumulate op initial (cdr sequence)))))
+        ```
+
+        - Examples:
+            ```lisp
+            (accumulate + 0 (list 1 2 3 4 5))
+            15
+            (accumulate * 1 (list 1 2 3 4 5))
+            120
+            ```
+    
+    - *modular design*: designs that are constructed by combining relatively independent pieces, it 
+    is a powerful strategy for controlling complexity in engineering design.
+
+    ### Nested Mappings
+    
+    - The book gives an example of solving the problem: Given a positive integer n, find all ordered
+     pairs of distinct positive integers i and j, where 1 < j < i < n, such that i + j is prime:
+
+        ```lisp
+        (accumulate append
+            nil
+            (map (lambda (i)
+                   (map (lambda (j) (list i j))
+                        (enumerate-interval 1 (- i 1))))
+                 (enumerate-interval 1 n)))
+        ```
+
+        - Enumerating `i` : `(enumerate-interval 1 n)`
+
+        - Enumerating `j` : `(enumerate-interval 1 (- i 1))`
+
+        - Pairing `j`s with single `i`:
+            ```lisp
+            (map (lambda (j) (list i j))
+                (enumerate-interval 1 (- i 1)))
+            ```
+        
+        - Mapping the pairing function over the list `i`:
+            ```lisp
+            (map (lambda (i)
+                    (map (lambda (j) (list i j))
+                        (enumerate-interval 1 (- i 1))))
+                  (enumerate-interval 1 n))
+            ```
+        
+        - Then using `accumulate` to append all the `(i j)` pairs together, since this kind of 
+        combination of mapping and accumulating with `append` is common, the book gives a procedure:
+            ```lisp
+            (define (flatmap proc seq)
+                (accumulate append nil (map proc seq)))
+            ```
+
+        - We also need a filter procedure to determine whether the sum of elements in the given
+        pairs is a prime number:
+            ```lisp
+            (define (prime-sum? pair)
+                (prime? (+ (car pair) (cadr pair))))
+            ```
+        
+        - And we may need to add the sums to the orginal pairs:
+            ```lisp
+            (define (make-pair-sum pair)
+                (list (car pair) (cadr pair) (+ (car pair) (cadr pair))))
+            ```
+            The reason we using `cadr` is that we construct the original pair by using `list`.
+
+        - The complete procedure:
+            ```lisp
+            (define (prime-sum-pairs n)
+                (map make-pair-sum
+                    (filter prime-sum?
+                            (flatmap
+                                (lambda (i)
+                                (map (lambda (j) (list i j))
+                                    (enumerate-interval 1 (- i 1))))
+                                (enumerate-interval 1 n)))))
+            ```
+
+            
+    <p style="color:red; font-weight: bold; font-style: italic"> 
+    All the codes in this note are from the book: SICP <p>
+        
+    - Another example is generating all the permutation of a given set S:
+        ```lisp
+        (define (permutations s)
+            (if (null? s)                    ; empty set?
+                (list nil)                   ; sequence containing empty set
+                (flatmap (lambda (x)
+                            (map (lambda (p) (cons x p))
+                                (permutations (remove x s))))
+                        s)))
+
+        (define (remove item sequence)
+            (filter (lambda (x) (not (= x item)))
+                sequence))
+        ```
