@@ -44,6 +44,11 @@
 ;           (queen-cols (- k 1))))))
 ;   (queen-cols board-size))
 
+;; T(k) = T(k - 1) + board-size (k > 0)
+;;      = board-size            (k = 0)
+
+;; thus, T(k) = (board-size) * (board-size)
+
 ;; the bad one:
 (define (queens board-size)
   (define (queen-cols k)  
@@ -59,7 +64,12 @@
           (enumerate-interval 1 board-size)))))
   (queen-cols board-size))
 
-;; this one's running time is n times slower than the previous version...
+;; T(k) = board-size * T(k - 1) (k > 0)
+;;      = board-size            (k = 0)
+
+;; thus, T(k) ~= (board-size)^(board-size)
+ 
+;; I'll give better explanation later...
 
 (define empty-board nil)
 
@@ -73,5 +83,3 @@
                 (map (lambda (i) (and (not (= k-position (cdr i))) 
                                       (not (= (abs (- k-position (cdr i))) (abs (- k (car i))))))) 
                      filtered-positions))))
-
-

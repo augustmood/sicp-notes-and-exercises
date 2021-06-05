@@ -302,3 +302,135 @@ Scheme. The code in above example is equivalent to:
             (filter (lambda (x) (not (= x item)))
                 sequence))
         ```
+    
+## 2.2.4 Example: A Pciture Language
+
+- Introducing a simple language for drawing pictures.
+
+    ### The picture language
+
+    - part of the elegance of this picture language is that there is only one kind of element,
+    called a `painter`.
+
+    - Giving some examples of recursive operations:
+        ```lisp
+        (define (right-split painter n)
+            (if (= n 0)
+                painter
+                (let ((smaller (right-split painter (- n 1))))
+                    (beside painter (below smaller smaller)))))
+        ```
+
+        ```lisp
+        (define (corner-split painter n)
+            (if (= n 0)
+                painter
+                (let ((up (up-split painter (- n 1)))
+                        (right (right-split painter (- n 1))))
+                    (let ((top-left (beside up up))
+                        (bottom-right (below right right))
+                        (corner (corner-split painter (- n 1))))
+                    (beside (below painter top-left)
+                            (below bottom-right corner))))))
+        ```
+    
+    ### Higher-order operations
+
+    - We can view the painter operations as elements to manipulate and can write means of 
+    combination for these elements -- procedures that take painter operations as arguments and 
+    create new painter operations.
+
+    - The book gives an example:
+        ```lisp
+        (define (square-of-four tl tr bl br)
+            (lambda (painter)
+                (let ((top (beside (tl painter) (tr painter)))
+                    (bottom (beside (bl painter) (br painter))))
+                (below bottom top))))
+        ```
+    
+    ### Frames
+
+    - A frame can be described by three vectors -- an origin vector and two edge vectors:
+        - The origin vector specifies the offset of the frame's origin from some absolute origin in
+        the plane
+        - The edge vectors specify the offsets of the frame's corners from its origin.
+    
+    - `frame coordinate map`:
+        Transforming the unit square into the frame by mapping the vector *v = (x, y)* to the vector
+        sum.
+        ```
+        Origin(Frame) = x * Edge_1(Frame) + y * Edge_2(Frame)
+        ```
+        
+        - Giving an procedure:
+            ```lisp
+            (define (frame-coord-map frame)
+                (lambda (v)
+                    (add-vect
+                    (origin-frame frame)
+                    (add-vect (scale-vect (xcor-vect v)
+                                        (edge1-frame frame))
+                            (scale-vect (ycor-vect v)
+                                        (edge2-frame frame))))))
+            ```
+    
+    ### Painters
+
+    - The details of how primitive painters are implemented depend on the particular characteristics
+    of the graphics system and the type of image to be drawn.
+
+    - The book gives an example:
+        ```lisp
+        (define (segments->painter segment-list)
+            (lambda (frame)
+                (for-each
+                (lambda (segment)
+                (draw-line
+                    ((frame-coord-map frame) (start-segment segment))
+                    ((frame-coord-map frame) (end-segment segment))))
+                segment-list)))
+        ```
+    
+    ### Transforming and combining painters
+
+    - `transform-painter`:
+        ```lisp
+        (define (transform-painter painter origin corner1 corner2)
+            (lambda (frame)
+                (let ((m (frame-coord-map frame)))
+                (let ((new-origin (m origin)))
+                    (painter
+                    (make-frame new-origin
+                                (sub-vect (m corner1) new-origin)
+                                (sub-vect (m corner2) new-origin)))))))
+        ```
+    
+    - `beisde`:
+        ```lisp
+        (define (beside painter1 painter2)
+            (let ((split-point (make-vect 0.5 0.0)))
+                (let ((paint-left
+                    (transform-painter painter1
+                                        (make-vect 0.0 0.0)
+                                        split-point
+                                        (make-vect 0.0 1.0)))
+                    (paint-right
+                    (transform-painter painter2
+                                        split-point
+                                        (make-vect 1.0 0.0)
+                                        (make-vect 0.5 1.0))))
+                (lambda (frame)
+                    (paint-left frame)
+                    (paint-right frame)))))
+        ```
+    
+    ### Levels of language for robust design
+
+    - `stratified design`: the notion that a complex system should be structured as a sequence of 
+    levels that are described using a sequence of languages. Each level is constructed by combining 
+    parts that are regarded as primitive at that level, and the parts constructed at each level are 
+    used as primitives at the next level. 
+
+    - Stratified design helps make program *robust*: that is, it makes it likely that small changes 
+    in a specification will require correspondingly small changes in the program.
