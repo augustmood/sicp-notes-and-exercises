@@ -9,47 +9,59 @@
 
 (define (variable? x) (symbol? x))
 
+(define nil empty)
+
 (define (same-variable? v1 v2)
   (and (variable? v1) (variable? v2) (eq? v1 v2)))
 
 (define (=number? exp num)
   (and (number? exp) (= exp num)))
 
+(define (operand? op)
+  (or (eq? op '+)
+      (eq? op '*)
+      (eq? op '-)
+      (eq? op '**)
+      (eq? op '/)))
+
 (define (make-sum a1 a2)
   (cond ((=number? a1 0) a2)
         ((=number? a2 0) a1)
         ((and (number? a1) (number? a2)) (+ a1 a2))
-        (else (list '+ a1 a2))))
+        (else (list a1 '+ a2))))
 
 (define (make-product m1 m2)
   (cond ((or (=number? m1 0) (=number? m2 0)) 0)
         ((=number? m1 1) m2)
         ((=number? m2 1) m1)
         ((and (number? m1) (number? m2)) (* m1 m2))
-        (else (list '* m1 m2))))
+        (else (list m1 '* m2))))
 
 (define (make-sub a1 a2)
   (cond ((=number? a1 0) (- a2))
         ((=number? a2 0) a1)
         ((and (number? a1) (number? a2)) (- a1 a2))
-        (else (list '- a1 a2))))
+        (else (list a1 '- a2))))
 
 (define (sum? x)
-  (and (pair? x) (eq? (car x) '+)))
+  (and (pair? x) (accumulate (lambda (x y) (or (eq? x '+) y)) #f x)))
 
-(define (addend s) (cadr s))
+(define (addend s)
+  (define (rec s)
+    (if (eq? (car s) '+)
+        nil
+        (cons (car s) (rec (cdr s)))))
+  (if (= (length (rec s)) 1) (car (rec s)) (rec s)))
 
-; (define (augend s) 
-;   (let ((new-s (cddr s)))
-;     (if (= (length new-s) 1)
-;         (car new-s)
-;         (append '(+) new-s))))
-
-(define (augend s) 
-  (accumulate make-sum 0 (cddr s)))
+(define (augend s)
+  (define (rec s)
+    (if (eq? (car s) '+)
+        (cdr s)
+        (rec (cdr s))))
+  (if (= (length (rec s)) 1) (car (rec s)) (rec s)))
 
 (define (sub? x)
-  (and (pair? x) (eq? (car x) '-)))
+  (and (pair? x) (memq '- x) #t))
 
 (define (minuend s)
   (cadr s))
@@ -58,18 +70,28 @@
   (caddr s))
 
 (define (product? x)
-  (and (pair? x) (eq? (car x) '*)))
+  (and (pair? x) (accumulate (lambda (x y) (and (eq? x '*) y)) #t (filter operand? x))))
 
-(define (multiplier p) (cadr p))
+(define (multiplier p) 
+  (define (rec p)
+    (if (eq? (car p) '*)
+        nil
+        (cons (car p) (rec (cdr p)))))
+  (car (rec p)))
 
-; (define (multiplicand p) 
-;   (let ((new-p (cddr p)))
-;     (if (= (length new-p) 1)
-;         (car new-p)
-;         (append '(*) new-p))))
+(define z (make-product '(a + b) '(3 + 6)))
+(multiplier z)
+(define s (make-product 'a 'e))
+(multiplier s)
 
-(define (multiplicand p) 
-    (accumulate make-product 1 (cddr p)))
+(define (multiplicand p)
+  (define (rec p)
+    (if (eq? (car p) '*)
+        (cdr p)
+        (rec (cdr p))))
+  (if (= (length (rec p)) 1)
+      (car (rec p))
+      (rec p)))
 
 ;; (** u n)
 (define (exponentiation? x)
@@ -109,20 +131,6 @@
         (else
          (error "unknown expression type -- DERIV" exp))))
 
-
-(deriv '(* x y (+ x 3)) 'x)
-(deriv '(+ x (* 3 (+ x (+ y 2)))) 'x)
-
-;; Once there are many variables, we may also simplify the formula first: calculate the sum/product of 
-;; all numeric items, and then combine this result with the non-numeric items.
-
-; (define (simplify exp)
-;   (let ((p (if (sum? exp) + *))
-;         (init (if (sum? exp) 0 1)))
-;     (let
-;         ((non-num (filter (lambda (i) (not (number? i))) exp))
-;          (num-sum (accumulate p init (filter (lambda (i) (number? i)) exp))))
-;       (append non-num (list num-sum)))))
-
-; (sort-num '(+ 1 2 3 4 5 x y z))
-; (sort-num '(* 1 2 3 4 5 x y z))
+(deriv '(x * y * (x + 3)) 'x)
+(deriv '((x * y) * (x + 3)) 'x)
+(deriv '(x * (y * (x + 3))) 'x)

@@ -13,8 +13,11 @@
                       (fringe (cdr lst)))
               )))
 
+; (define (count-leaves t)
+;   (accumulate (lambda (x y) (+ 1 y)) 0 (map (lambda (i) i) (fringe t))))
+
 (define (count-leaves t)
-  (accumulate (lambda (x y) (+ 1 y)) 0 (map (lambda (i) i) (fringe t))))
+  (accumulate (lambda (x y) (if (pair? x) (+ (count-leaves x) y) (+ 1 y))) 0 t))
 
 (define x (cons (list 1 2) (list 3 4)))
 
