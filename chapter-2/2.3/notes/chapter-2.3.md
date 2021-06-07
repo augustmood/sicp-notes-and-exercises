@@ -75,3 +75,76 @@ worrying about how these are to be prepared.
         ```
     
     ### Representing algebraic expressions
+
+## 2.3.3 Example: Representing Sets
+
+- A set is simply a collection of distinct objects: we define `set` by specifying the operation that
+are to be used on sets, like `union-set`, `intersection-set`, `element-of-set`?, and `adjoin-set`.
+
+    ## Sets as unordered lists
+
+    - Giving few examples of implementation of these procedures:
+        ```lisp
+        (define (element-of-set? x set)
+            (cond ((null? set) false)
+                  ((equal? x (car set)) true)
+                  (else (element-of-set? x (cdr set)))))
+        ```
+
+        ```lisp
+        (define (adjoin-set x set)
+            (if (element-of-set? x set)
+                set
+                (cons x set)))
+        ```
+
+        ```lisp
+        (define (intersection-set set1 set2)
+            (cond ((or (null? set1) (null? set2)) '())
+                  ((element-of-set? (car set1) set2)        
+                   (cons (car set1)
+                    (intersection-set (cdr set1) set2)))
+                  (else (intersection-set (cdr set1) set2))))
+        ```
+        So the third one, is just go through the whole set1, and for each element we might go
+        through the whole set2 to check if the element is already there. And this way might not that
+        efficient as the work is `O(n^2)`.
+
+    ## Sets as ordered lists
+
+    - In order to sort, we might need to compare two objects so that we can say which is bigger, we 
+    may compare symbols lexicographically, for instance. and we could also use some methods for 
+    assigning a unique number to an object and then do the comparision.
+
+    - If the set is ordered, then the element-of-set? is gonna be somewhat effiecient:
+        ```lisp
+        (define (element-of-set? x set)
+            (cond ((null? set) false)
+                    ((= x (car set)) true)
+                    ((< x (car set)) false)
+                    (else (element-of-set? x (cdr set)))))
+        ```
+        since if we reach a set element that is larger than the item we are looking for, then we 
+        could know that the item is not in the set.
+
+        On average, we should expect to have examine about half of the items in the set. Although 
+        this is still $\Theta(n)$
+
+    - We obtain a more impressive speedup with `intersection-set`, unordered one required 
+      $\Theta(n^2)$ steps, as we need to performed a complete scan of set2 for each element in set1.
+      While in ordered representation, we could do this in a much better way:
+      ```lisp
+       (define (intersection-set set1 set2)
+            (if (or (null? set1) (null? set2))
+                '()    
+                (let ((x1 (car set1)) (x2 (car set2)))
+                    (cond ((= x1 x2)
+                        (cons x1
+                                (intersection-set (cdr set1)
+                                                (cdr set2))))
+                        ((< x1 x2)
+                        (intersection-set (cdr set1) set2))
+                        ((< x2 x1)
+                        (intersection-set set1 (cdr set2)))))))
+        ```
+        And the required steps is about $\Theta(n)$ instead of $\Theta(n^2)$.
