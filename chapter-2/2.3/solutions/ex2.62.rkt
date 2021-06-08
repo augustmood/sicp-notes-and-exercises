@@ -1,4 +1,5 @@
 #lang racket
+(provide (all-defined-out))
 
 (define (adjoin-set x set)
   (if (or (null? set) (< x (car set)))
@@ -37,13 +38,16 @@
   [('() set2) set2]
   [(set1 '()) set1]
   [((cons x1 rest-set1) (cons x2 rest-set2))
-   (cons (min x1 x2) (if (< x1 x2) (union-set rest-set1 set2) (union-set rest-set2 set1)))])
+   (cons (min x1 x2) 
+         (cond ((> x1 x2) (union-set set1 rest-set2))
+               ((< x1 x2) (union-set rest-set1 set2))
+               (else (union-set rest-set1 rest-set2))))])
 
 ;; Almost the same as the preivous $\O(n)$ one, just looks more pretty.
 
 
-(union-set '(1 2 3 4) '(3 4 5 6 7 8))
-(union-set '(1 2 3 4 5 6 7) '(3 4 5 10))
-(union-set '(1 2 3 4 5 6 7) '())
-(union-set '() '(1 2 3 4 5))
-(union-set '() '())
+; (union-set '(1 2 3 4) '(3 4 5 6 7 8))
+; (union-set '(1 2 3 4 5 6 7 8) '(3 4 5 9 10))
+; (union-set '(1 2 3 4 5 6 7) '())
+; (union-set '() '(1 2 3 4 5))
+; (union-set '() '())

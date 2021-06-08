@@ -110,7 +110,7 @@ are to be used on sets, like `union-set`, `intersection-set`, `element-of-set`?,
         through the whole set2 to check if the element is already there. And this way might not that
         efficient as the work is `O(n^2)`.
 
-    ## Sets as ordered lists
+    ### Sets as ordered lists
 
     - In order to sort, we might need to compare two objects so that we can say which is bigger, we 
     may compare symbols lexicographically, for instance. and we could also use some methods for 
@@ -148,3 +148,60 @@ are to be used on sets, like `union-set`, `intersection-set`, `element-of-set`?,
                         (intersection-set set1 (cdr set2)))))))
         ```
         And the required steps is about $\Theta(n)$ instead of $\Theta(n^2)$.
+
+    ### Sets as binary trees
+    - Each node of the tree holds one element of the set, called the `entry` at that node, and a 
+    link to each of two other nodes:
+        - The `left` link points to elements smaller than the one at the node.
+        - The `right` link to elements greater than the one at the node.
+  
+    - The only thing we require for a valid representation is that all elements in the left subtree 
+    be smaller than the node entry and that all elements in the right subtree be larger.
+
+    - Required work of searching in tree is $\mathcal{O}(log_n)$. (if the tree is `balanced`)
+
+    - We can represent trees by using lists. Each node will be a list of three items: `node`, `the 
+   left subtree`, `the right subtree`.
+
+   - The book gives an example of implementation:
+        ```lisp
+        (define (entry tree) (car tree))
+        (define (left-branch tree) (cadr tree))
+        (define (right-branch tree) (caddr tree))
+        (define (make-tree entry left right)
+        (list entry left right))
+
+        (define (element-of-set? x set)
+            (cond ((null? set) false)
+                    ((= x (entry set)) true)
+                    ((< x (entry set))
+                    (element-of-set? x (left-branch set)))
+                    ((> x (entry set))
+                    (element-of-set? x (right-branch set)))))
+        
+        (define (adjoin-set x set)
+            (cond ((null? set) (make-tree x '() '()))
+                    ((= x (entry set)) set)
+                    ((< x (entry set))
+                    (make-tree (entry set) 
+                                (adjoin-set x (left-branch set))
+                                (right-branch set)))
+                    ((> x (entry set))
+                    (make-tree (entry set)
+                                (left-branch set)
+                                (adjoin-set x (right-branch set))))))
+        ```
+
+    ### Sets and information retrieval
+
+    - Giving an example of implementing the procedure `lookup` if the records is implemented as un
+    unordered list:
+        ```lisp
+        (define (lookup given-key set-of-records)
+            (cond ((null? set-of-records) false)
+                    ((equal? given-key (key (car set-of-records)))
+                    (car set-of-records))
+                    (else (lookup given-key (cdr set-of-records)))))
+        ```
+
+## 2.3.4 Example: Huffman Encoding Trees
