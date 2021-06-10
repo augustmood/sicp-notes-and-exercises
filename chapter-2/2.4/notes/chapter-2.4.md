@@ -157,4 +157,143 @@ this note are from the book: SICP <p>
 ## 2.4.3 Data-Directed Programming and Additivity
 
 - The general strategy of checking the type of a datum and calling an appropriate procedure is 
-    called *`dispatching on type`*.
+    called *`dispatching on type`*, but it has two significant weakness:
+    - One is that the generic interface procedures must know all the different representations.
+    - Another is that even though the individual representations can be designed separately, we
+        must guarantee that no two procedures in the entire system have the same name.
+
+  The issue underlying both of these weakness is that the technique for implementing generic
+    interfaces is not additive, implementing the generic selector procedures must modify those 
+    procedures each time a new representation is installed, and may need to make some changes to
+    avoid name conflicts.
+
+- `data-directed programming` provided the means for further modularizing the system design.
+
+  The book provides two procedures `put` and `get` for manipulating the operation-and-type table:
+  - *`(put <op> <type> <item>)`*
+  
+    installs the `<item>` in the table, indexed by the `<op>` and the `<type>`
+  - *`(get <op> <type>)`*
+
+    looks up the `<op>`, `<type>` entry in the table and returns the item found there. If no item is
+    found, `get` returns false.
+
+- The book gives two representation of defining a collection of procedures, or a package, and both
+  work in the same time:
+    ```lisp
+    (define (install-rectangular-package)
+        ;; internal procedures
+        (define (real-part z) (car z))
+        (define (imag-part z) (cdr z))
+        (define (make-from-real-imag x y) (cons x y))
+        (define (magnitude z)
+            (sqrt (+ (square (real-part z))
+                    (square (imag-part z)))))
+        (define (angle z)
+            (atan (imag-part z) (real-part z)))
+        (define (make-from-mag-ang r a) 
+            (cons (* r (cos a)) (* r (sin a))))
+        ;; interface to the rest of the system
+        (define (tag x) (attach-tag 'rectangular x))
+        (put 'real-part '(rectangular) real-part)
+        (put 'imag-part '(rectangular) imag-part)
+        (put 'magnitude '(rectangular) magnitude)
+        (put 'angle '(rectangular) angle)
+        (put 'make-from-real-imag 'rectangular 
+            (lambda (x y) (tag (make-from-real-imag x y))))
+        (put 'make-from-mag-ang 'rectangular 
+            (lambda (r a) (tag (make-from-mag-ang r a))))
+        'done)
+    ```
+
+    ```lisp
+    (define (install-polar-package)
+        ;; internal procedures
+        (define (magnitude z) (car z))
+        (define (angle z) (cdr z))
+        (define (make-from-mag-ang r a) (cons r a))
+        (define (real-part z)
+            (* (magnitude z) (cos (angle z))))
+        (define (imag-part z)
+            (* (magnitude z) (sin (angle z))))
+        (define (make-from-real-imag x y) 
+            (cons (sqrt (+ (square x) (square y)))
+                (atan y x)))
+        ;; interface to the rest of the system
+        (define (tag x) (attach-tag 'polar x))
+        (put 'real-part '(polar) real-part)
+        (put 'imag-part '(polar) imag-part)
+        (put 'magnitude '(polar) magnitude)
+        (put 'angle '(polar) angle)
+        (put 'make-from-real-imag 'polar
+            (lambda (x y) (tag (make-from-real-imag x y))))
+        (put 'make-from-mag-ang 'polar 
+            (lambda (r a) (tag (make-from-mag-ang r a))))
+        'done)
+    ```
+
+- The selectors access the table by means of a general `operation` procedure called `apply-generic`,
+  which applies a generic operation to some arguments. `apply-generic` looks in the table under the
+  name of the operation and the types of the arguments and applies the resulting procedure if one is
+  present:
+    ```lisp
+    (define (apply-generic op . args)
+        (let ((type-tags (map type-tag args)))
+            (let ((proc (get op type-tags)))
+            (if proc
+                (apply proc (map contents args))
+                (error
+                    "No method for these types -- APPLY-GENERIC"
+                    (list op type-tags))))))
+    ```
+  - This procedure uses the *dotted-tail* notation since different operations may take different 
+    numbers of arguments. In `apply-generic`, `op` has as its value the first argument to 
+    `apply-generic` and `args` has as its value of a list of the remaining arguments.
+
+  - `apply` takes two arguments, a procedure and a list, `apply` applies the procedure, using the 
+    elements in the lists as arguments.
+    ```lisp
+    > (apply + (list 1 2 3 4))
+    > 10
+    ```
+
+- Using `apply-generic`, we can define our generic selectors as follows:
+    ```lisp
+    (define (real-part z) (apply-generic 'real-part z))
+    (define (imag-part z) (apply-generic 'imag-part z))
+    (define (magnitude z) (apply-generic 'magnitude z))
+    (define (angle z) (apply-generic 'angle z))
+    ```
+
+    ```lisp
+    (define (make-from-real-imag x y)
+        ((get 'make-from-real-imag 'rectangular) x y))
+    (define (make-from-mag-ang r a)
+        ((get 'make-from-mag-ang 'polar) r a))
+    ```
+
+    ### Message passing
+
+    - The key idea of `data-directed` programming is to handle generic operations in programs by 
+    dealing explicitly with operation-and-type tables.
+
+    - An alternative implementation strategy is to decompose the table into columns and, instead of 
+    using `intelligent operations` that dispatch on data types, to work with `intelligent 
+    data objects` that dispatch on operation names.
+
+      And the book gives an example of using this strategy:
+        ```lisp
+        (define (make-from-real-imag x y)
+            (define (dispatch op)
+                (cond ((eq? op 'real-part) x)
+                    ((eq? op 'imag-part) y)
+                    ((eq? op 'magnitude)
+                    (sqrt (+ (square x) (square y))))
+                    ((eq? op 'angle) (atan y x))
+                    (else
+                    (error "Unknown op -- MAKE-FROM-REAL-IMAG" op))))
+            dispatch)
+        
+        (define (apply-generic op arg) (arg op))
+        ```
+      This style of programming is called *`message passing`*

@@ -21,3 +21,4 @@
                                   (list 4 '(1 2 3) ) 
                                   (list 5 '(1 2 3) ) 
                                   (list 6 '(1 2 3)))))
+(lookup 1 records-a)
