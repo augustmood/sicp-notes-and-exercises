@@ -1,5 +1,8 @@
 # Chapter 2.2 Hierarchical Data and the Closure Property
 
+<p style="color:#FF6666; font-weight: bold; font-style: italic"> All the codes and some sentences in 
+this note are from the book: SICP <p>
+
 - Pairs provide a primitve *glue* that we can use to construct compound data objects.
 
 - The ability to create pairs whose elementary elements are pairs is the essence of list structure's
@@ -284,10 +287,6 @@ Scheme. The code in above example is equivalent to:
                                 (enumerate-interval 1 n)))))
             ```
 
-            
-    <p style="color:red; font-weight: bold; font-style: italic"> 
-    All the codes in this note are from the book: SICP <p>
-        
     - Another example is generating all the permutation of a given set S:
         ```lisp
         (define (permutations s)

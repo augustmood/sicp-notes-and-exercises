@@ -1,0 +1,27 @@
+#lang racket
+(require "huffman.rkt")
+(provide (all-defined-out))
+
+(define (generate-huffman-tree pairs)
+  (successive-merge (make-leaf-set pairs)))
+
+; (define (successive-merge leaf-set)
+;   (define (merge-rec leaves)
+;     (if (null? (cdr leaves))
+;         (car leaves)
+;         (make-code-tree (car leaves)
+;                         (merge-rec (cdr leaves)))))
+;   (if (<= (length leaf-set) 1)
+;       (car leaf-set)
+;       (let ((leaves (cons (cadr leaf-set) 
+;                           (cons (car leaf-set) 
+;                                 (cddr leaf-set)))))
+;         (merge-rec (reverse leaves)))))
+
+(define (successive-merge leaf-set)
+  (if (null? (cdr leaf-set))
+      (car leaf-set)
+      (let ((left-br (car leaf-set))
+            (right-br (cadr leaf-set))
+            (rest-leaves (cddr leaf-set)))
+        (successive-merge (adjoin-set (make-code-tree left-br right-br) rest-leaves)))))

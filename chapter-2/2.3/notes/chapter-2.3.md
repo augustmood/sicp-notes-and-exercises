@@ -1,5 +1,8 @@
 # Chapter 2.3 Symbolic Data
 
+<p style="color:#FF6666; font-weight: bold; font-style: italic"> All the codes and some sentences in 
+this note are from the book: SICP <p>
+
 Introducing the ability of our language to work with arbitrary symbols as data.
 
 ## 2.3.1 Quotation
@@ -205,3 +208,104 @@ are to be used on sets, like `union-set`, `intersection-set`, `element-of-set`?,
         ```
 
 ## 2.3.4 Example: Huffman Encoding Trees
+
+- Code such as ASCII and the A-through-H code above are known as `fixed-length` codes, because 
+they represent each symbol in the message with the same number of bits.
+
+- It sometimes advantageous to use variable-length codes, in which different symbols may be 
+represented by different numbers of bits. `we can encode data more efficiently if we assign
+shorter codes to the frequent symbols.
+
+- `separator code`: in Morse code it's a pause after the sequence of dots and dashes for each other.
+
+- `prefix code`: the code which there's no complete code for any symbol is the beginning (or 
+`prefix`) of the code for another symbol.
+
+- A Huffman code can be represented as a binary tree whose leaves are the symbols that are encoded.\
+
+    ### Representing Huffman trees
+    - The book gives an example of implementing the representation:
+  
+        - Leaves of the tree are represented by a list consisting of the symbol `leaf`:
+            ```lisp
+            (define (make-leaf symbol weight)
+                (list 'leaf symbol weight))
+            (define (leaf? object)
+                (eq? (car object) 'leaf))
+            (define (symbol-leaf x) (cadr x))
+            (define (weight-leaf x) (caddr x))
+            ```
+        
+        - A general tree will be a list of a left branch, a right branch, a set of symbols, and a 
+            weight. The set of symbols will be simply a list of the symbols, rather than some more
+            sophisticated set representation:
+            ```lisp
+            (define (make-code-tree left right)
+                (list left
+                      right
+                      (append (symbols left) (symbols right))
+                      (+ (weight left) (weight right))))
+            
+            (define (left-branch tree) (car tree))
+
+            (define (right-branch tree) (cadr tree))
+
+            (define (symbols tree)
+                (if (leaf? tree)
+                    (list (symbol-leaf tree))
+                    (caddr tree)))
+
+            (define (weight tree)
+                (if (leaf? tree)
+                    (weight-leaf tree)
+                    (cadddr tree)))
+            ```
+    ### The decoding procedure
+
+    - The book gives an example of implementing the decoding algorithm:
+        ```lisp
+        (define (decode bits tree)
+            (define (decode-1 bits current-branch)
+                (if (null? bits)
+                    '()
+                    (let ((next-branch
+                        (choose-branch (car bits) current-branch)))
+                    (if (leaf? next-branch)
+                        (cons (symbol-leaf next-branch)
+                                (decode-1 (cdr bits) tree))
+                        (decode-1 (cdr bits) next-branch)))))
+            (decode-1 bits tree))
+
+        (define (choose-branch bit branch)
+            (cond ((= bit 0) (left-branch branch))
+                  ((= bit 1) (right-branch branch))
+                  (else (error "bad bit -- CHOOSE-BRANCH" bit))))
+        ```
+
+    ### Sets of weighted elements
+
+    -  We will represent a set of leaves and trees as a list of elements, arragned in increasing 
+    order of weight,
+
+    - The book gives an example of implementing `adjoin-set` procedure for constructing sets:
+        ```lisp
+        (define (adjoin-set x set)
+            (cond ((null? set) (list x))
+                    ((< (weight x) (weight (car set))) (cons x set))
+                    (else (cons (car set)
+                                (adjoin-set x (cdr set))))))
+        ```
+
+        The following procedure takes a list of symbol-frequency pairs such as 
+        ((A 4) (B 2) (C 1) (D 1)) and constructs an initial ordered set of leaves, ready to be 
+        merged according to the Huffman algorithm:
+
+        ```lisp
+        (define (make-leaf-set pairs)
+            (if (null? pairs)
+                '()
+                (let ((pair (car pairs)))
+                    (adjoin-set (make-leaf (car pair)    ; symbol
+                                        (cadr pair))  ; frequency
+                                (make-leaf-set (cdr pairs))))))
+        ```
