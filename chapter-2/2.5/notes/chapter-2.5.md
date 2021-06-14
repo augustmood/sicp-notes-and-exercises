@@ -135,3 +135,70 @@ this note are from the book: SICP <p>
 - We have ignored an important issue: the operations we have defined so far treated the different 
 data types as being completely independent. For instance, there are separate packages for adding, 
 say, two ordinary numbers, or two complex numbers.
+
+- One way to handle cross-type operations is to design a different procedure for each possible
+combination of types for which the operation is valid, for example:
+    ```lisp
+    (define (add-complex-to-schemenum z x)
+        (make-from-real-imag (+ (real-part z) x)
+                            (imag-part z)))
+        (put 'add '(complex scheme-number)
+            (lambda (z x) (tag (add-complex-to-schemenum z x))))
+    ```
+    The above code extend the complex-number package to make `add` work between complex number and 
+    ordinary number.
+
+    The technique works, but it is cumbersome:
+    - the cost of introducing a new type is not just the construction of the package of procedures
+    for that type but also installation of the procedures that implement the cross-type operations.
+    - The method also undermines our ability to combine separate packages additively.
+
+    ### Coercion
+    - Often the different data types are not completely independent, and there may be ways by which
+    objects of one type may be viewed as being of another type, this is called *`coercion`*.
+    - The book gives an implementation of new `apply-generic` since we use `coercion` to manipulate 
+    the table:
+    
+        ```lisp
+        (define (apply-generic op . args)
+            (let ((type-tags (map type-tag args)))
+                (let ((proc (get op type-tags)))
+                (if proc
+                    (apply proc (map contents args))
+                    (if (= (length args) 2)
+                        (let ((type1 (car type-tags))
+                              (type2 (cadr type-tags))
+                              (a1 (car args))
+                              (a2 (cadr args)))
+                            (let ((t1->t2 (get-coercion type1 type2))
+                                (t2->t1 (get-coercion type2 type1)))
+                            (cond (t1->t2
+                                    (apply-generic op (t1->t2 a1) a2))
+                                    (t2->t1
+                                    (apply-generic op a1 (t2->t1 a2)))
+                                    (else
+                                    (error "No method for these types"
+                                            (list op type-tags))))))
+                        (error "No method for these types"
+                                (list op type-tags)))))))
+        ```
+    - The appropriate transformation between types depends only on the types themselves, not on
+    the operation to be applied.
+
+    - But it is still not general enough, when neither of the objects to be combined can be 
+    converted to the type of the other it may still be possible to perform the operation by
+    converting both objects to a third type.
+
+    ### Hierarchies of types
+
+    - Introducing a type structure called `tower`.
+
+    - And the book gives an example of redesigning the `apply-generic` procedure: 
+        
+        For each type, they need to supply a `raise` procedure, which `raise` objects of that type
+        one level in the tower. Then when the system is required to operate on objects of different
+        types it can successively raise the lower types until all objects are at the same level in 
+        the tower.
+    
+    ### Inadequacies of hierarchies
+    

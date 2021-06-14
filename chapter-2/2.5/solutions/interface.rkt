@@ -21,6 +21,22 @@
           (else (get-helper k (cdr array)))))
   (get-helper (list op type) global-array))
 
+(define coercion-table '())
+
+(define (put-coercion op type item)
+  (define (put-helper k array)
+    (cond ((null? array) (list(make-entry k item)))
+          ((equal? (key (car array)) k) array)
+          (else (cons (car array) (put-helper k (cdr array))))))
+  (set! coercion-table (put-helper (list op type) coercion-table)))
+
+(define (get-coercion op type)
+  (define (get-helper k array)
+    (cond ((null? array) #f)
+          ((equal? (key (car array)) k) (value (car array)))
+          (else (get-helper k (cdr array)))))
+  (get-helper (list op type) coercion-table))
+
 ;; modified one:
 (define (attach-tag type-tag contents)
   (if (and (eq? type-tag 'scheme-number) (number? contents))
@@ -39,11 +55,18 @@
     ((pair? datum) (cdr datum))
     (else (error "Bad tagged datum -- CONTENTS" datum))))
 
-(define (apply-generic op . args)
-  (let ((type-tags (map type-tag args)))
-    (let ((proc (get op type-tags)))
-      (if proc
-          (apply proc (map contents args))
-          (error
-           "No method for these types -- APPLY-GENERIC"
-           (list op type-tags))))))
+
+;; basic tools:
+
+(define (accumulate op initial sequence)
+  (if (null? sequence)
+      initial
+      (op (car sequence)
+          (accumulate op initial (cdr sequence)))))
+
+(define (filter predicate sequence)
+  (cond ((null? sequence) nil)
+        ((predicate (car sequence))
+         (cons (car sequence)
+               (filter predicate (cdr sequence))))
+        (else (filter predicate (cdr sequence)))))

@@ -1,6 +1,6 @@
 #lang sicp
 (#%require "interface.rkt")
-(#%require "complex-numbers.rkt")
+(#%require "complex-number.rkt")
 
 (define (install-complex-package)
   (install-rectangular-package)

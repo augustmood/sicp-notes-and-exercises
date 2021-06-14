@@ -1,6 +1,7 @@
 #lang sicp
 (#%provide (all-defined))
 (#%require "interface.rkt")
+(#%require "generic.rkt")
 (#%require "scheme-number.rkt")
 (#%require "rational-number.rkt")
 (#%require "complex-number.rkt")

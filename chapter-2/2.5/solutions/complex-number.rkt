@@ -1,7 +1,7 @@
 #lang sicp
 (#%require "interface.rkt")
+(#%require "generic.rkt")
 (#%provide (all-defined))
-
 (define (square n)
     (* n n))
 
