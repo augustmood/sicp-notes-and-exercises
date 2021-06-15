@@ -1,0 +1,22 @@
+#lang sicp
+(#%require "interface.rkt")
+(#%provide (all-defined))
+
+(define (install-real-package)
+  (define (tag x)
+    (attach-tag 'real x))
+  (put 'add '(real real)
+       (lambda (x y) (tag (+ x y))))
+  (put 'sub '(real real)
+       (lambda (x y) (tag (- x y))))
+  (put 'mul '(real real)
+       (lambda (x y) (tag (* x y))))
+  (put 'div '(real real)
+       (lambda (x y) (tag (/ x y))))
+  (put 'equ? '(real real)
+       (lambda (x y) (= x y)))
+  (put '=zero? '(real)
+       (lambda (x) (= x 0)))
+  (put 'make 'real
+       (lambda (x) (tag (exact->inexact x))))
+  'done)
