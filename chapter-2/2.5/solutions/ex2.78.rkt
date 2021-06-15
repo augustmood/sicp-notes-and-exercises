@@ -1,6 +1,6 @@
 #lang sicp
 (#%require "interface.rkt")
-
+(#%require "generic.rkt")
 ; (define (attach-tag type-tag contents)
 ;   (if (and (eq? type-tag 'scheme-number) (number? contents))
 ;       contents

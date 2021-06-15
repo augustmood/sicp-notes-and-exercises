@@ -1,7 +1,9 @@
 #lang sicp
 (#%require "interface.rkt")
 (#%require "arithmetic.rkt") 
+(#%require "tower-system.rkt")
 (install-arithmetic)
+(install-coercion)
 
 (define sn-1 (make-integer 10))
 (define sn-2 9)

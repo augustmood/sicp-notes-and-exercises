@@ -11,7 +11,9 @@
   (install-integer-package)
   (install-rational-package)
   (install-real-package)
-  (install-complex-package)  
+  (install-complex-package))
+
+(define (install-coercion)
   (define (integer->rational arg)
     (make-rational arg 1))
   
@@ -22,9 +24,30 @@
   (define (real->complex arg)
     (make-complex-from-real-imag (exact->inexact arg) 0))
   
+  (define (rational->integer arg)
+    (let ((contents (contents arg)))
+      (inexact->exact (round (/ (car contents) (cdr contents))))))
+  
+  (define (real->rational arg)
+    (define (iter arg denom)
+      (if (integer? arg)
+          (make-rational (inexact->exact arg) (inexact->exact denom))
+           (iter (* 10 arg) (* 10 denom))))
+    (iter arg 1))
+  
+  (define (complex->real arg)
+    (exact->inexact (real-part arg)))
+  
+  (define (polar->rect arg)
+    (make-complex-from-real-imag (real-part arg) (imag-part arg)))
+  
   (put-coercion 'integer 'rational integer->rational)
   (put-coercion 'rational 'real rational->real)
   (put-coercion 'real 'complex real->complex)
+  (put-coercion 'rational 'integer rational->integer)
+  (put-coercion 'real 'rational real->rational)
+  (put-coercion 'complex 'real complex->real)
+  (put-coercion 'polar 'rect polar->rect)
   )
 
 (define (add x y)
@@ -39,6 +62,11 @@
   (apply-generic 'equ? x y))
 (define (=zero? x)
   (apply-generic '=zero? x))
+
+(define (real-part z)
+  (apply-generic 'real-part z))
+(define (imag-part z)
+  (apply-generic 'imag-part z))
 
 (define (make-integer x)
   ((get 'make 'integer) x))
