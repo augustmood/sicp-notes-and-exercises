@@ -208,3 +208,11 @@ combination of types for which the operation is valid, for example:
 
 ### Representing term lists
 
+- Thoughts about exercise 2.90:
+  - If we want to make the polynomial system adapt with our tower system well, we may need to add
+  add the type in our tower system. While, I don't really think this is a good idea, as polynomial
+  should be an expression but numbers, and our tower-systems are just an system served for numbers.
+  I've been stuck for a while, but I'm clearly what I need to implement and implement well as 
+  thought, but not work. This is because I literally messed up the `tags` and the `apply-generic`'s
+  `get-put` tables, when will the function drop the tag, and when will the attach the tag, is the 
+  key-point tothis question, at least in my strategy of implementaion.
