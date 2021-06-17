@@ -17,6 +17,10 @@
        (lambda (x y) (= x y)))
   (put '=zero? '(real)
        (lambda (x) (= x 0)))
+  (put 'sine '(real)
+       (lambda (x) (sin x)))
+  (put 'cosine '(real)
+       (lambda (x) (cos x)))
   (put 'make 'real
        (lambda (x) (tag (exact->inexact x))))
   'done)

@@ -1,7 +1,7 @@
 #lang sicp
 (#%require "interface.rkt")
-(#%require "arithmetic.rkt") 
-(#%require "tower-system.rkt")
+(#%require "arithmetic.rkt")
+(#%require "operators.rkt")
 (install-arithmetic)
 (install-coercion)
 

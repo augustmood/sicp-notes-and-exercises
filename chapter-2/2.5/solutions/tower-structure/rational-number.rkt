@@ -65,6 +65,12 @@
        (lambda (x) (=zero? x)))
   ;; ```ex2.80 above.
   
+  (put 'sine '(rational)
+       (lambda (x) (sin (/ (numer x) (denom x)))))
+  
+  (put 'cosine '(rational)
+       (lambda (x) (cos (/ (numer x) (denom x)))))
+       
   (put 'make 'rational
        (lambda (n d) (tag (make-rat n d))))
   'done)

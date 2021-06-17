@@ -189,7 +189,7 @@ combination of types for which the operation is valid, for example:
     converted to the type of the other it may still be possible to perform the operation by
     converting both objects to a third type.
 
-    ### Hierarchies of types
+### Hierarchies of types
 
     - Introducing a type structure called `tower`.
 
@@ -200,5 +200,11 @@ combination of types for which the operation is valid, for example:
         types it can successively raise the lower types until all objects are at the same level in 
         the tower.
     
-    ### Inadequacies of hierarchies
-    
+### Inadequacies of hierarchies
+
+## 2.5.3 Example: Symbolic Algebra
+
+### Arithmetic on polynomials
+
+### Representing term lists
+

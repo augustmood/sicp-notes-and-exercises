@@ -13,17 +13,14 @@
        (lambda (x y) (tag (* x y))))
   (put 'div '(integer integer)
        (lambda (x y) (tag (round (/ x y)))))
-  
-  ;; ex2.79 below:```
   (put 'equ? '(integer integer)
        (lambda (x y) (= x y)))
-  ;; ```ex2.79 above.
-  
-  ;; ex2.80 below:```
   (put '=zero? '(integer)
        (lambda (x) (= x 0)))
-  ;; ```ex2.80 above.
-  
+  (put 'sine '(integer)
+       (lambda (x) (sin x)))
+  (put 'cosine '(integer)
+       (lambda (x) (cos x)))
   (put 'make 'integer
        (lambda (x) (tag (round x))))
   'done)

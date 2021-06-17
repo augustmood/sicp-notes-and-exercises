@@ -1,39 +1,48 @@
 #lang sicp
 (#%require "interface.rkt")
 (#%require "rect-and-polar.rkt")
+(#%require "integer.rkt")
+(#%require "rational-number.rkt")
+(#%require "real.rkt")
+(#%require "operators.rkt")
 (#%provide (all-defined))
 
 (define (install-complex-package)
   ;; imported procedures from rectangular and polar packages
   (install-rectangular-package)
   (install-polar-package)
+  (install-integer-package)
+  (install-rational-package)
+  (install-real-package)
   (define (make-from-real-imag x y)
     ((get 'make-from-real-imag 'rectangular) x y))
   (define (make-from-mag-ang r a)
     ((get 'make-from-mag-ang 'polar) r a))
   ;; internal procedures
   (define (add-complex z1 z2)
-    (make-from-real-imag (+ (real-part z1) (real-part z2))
-                         (+ (imag-part z1) (imag-part z2))))
+    (make-from-real-imag (add (real-part z1) (real-part z2))
+                         (add (imag-part z1) (imag-part z2))))
   (define (sub-complex z1 z2)
-    (make-from-real-imag (- (real-part z1) (real-part z2))
-                         (- (imag-part z1) (imag-part z2))))
+    (make-from-real-imag (sub (real-part z1) (real-part z2))
+                         (sub (imag-part z1) (imag-part z2))))
   (define (mul-complex z1 z2)
-    (make-from-mag-ang (* (magnitude z1) (magnitude z2))
-                       (+ (angle z1) (angle z2))))
+    (make-from-mag-ang (mul (magnitude z1) (magnitude z2))
+                       (add (angle z1) (angle z2))))
   (define (div-complex z1 z2)
-    (make-from-mag-ang (/ (magnitude z1) (magnitude z2))
-                       (- (angle z1) (angle z2))))
-
+    (make-from-mag-ang (div (magnitude z1) (magnitude z2))
+                       (sub (angle z1) (angle z2))))
+  
   (define (equ?-complex z1 z2)
     (and (or (= (real-part z1) (real-part z2)) 
              (< (abs (- (real-part z1) (real-part z2))) 0.0000001))
          (or (= (imag-part z1) (imag-part z2))
              (< (abs (- (imag-part z1) (imag-part z2))) 0.0000001))))
+  
   (define (=zero? z)
     (= (real-part z) (imag-part z) 0))
-
+  
   (define (tag z) (attach-tag 'complex z))
+  
   (put 'add '(complex complex)
        (lambda (z1 z2) (tag (add-complex z1 z2))))
   (put 'sub '(complex complex)
