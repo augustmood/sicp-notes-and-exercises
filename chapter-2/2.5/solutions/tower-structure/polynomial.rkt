@@ -19,7 +19,7 @@
   (install-dense-package)
   (install-sparse-package)
   (install-term-package)
-
+  
   (define (adjoin-term term term-list)
     (apply-generic 'adjoin-term term term-list))
   
@@ -100,7 +100,7 @@
                                           (contents (dense->sparse term-sets)))))))
   
   (define (sub-poly p1 p2)
-    (add-poly p1 (neg p2)))
+    (add-poly (make-poly (variable p1) (dense->sparse (term-list p1))) (neg p2)))
   
   (define (mul-poly p1 p2)
     (if (same-variable? (variable p1) (variable p2))

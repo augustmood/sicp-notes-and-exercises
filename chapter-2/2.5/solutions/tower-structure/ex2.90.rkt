@@ -39,7 +39,7 @@
     (if (= n 1)
         result
         (iter (- n 1) (cons 0 result))))
-        
+
   (define (adjoin-term term term-list)
     (let ((revised-term (make-term (car term) (cadr term))))
       (if (=zero? (coeff revised-term))
@@ -92,14 +92,6 @@
 
 (define (the-empty-termlist)
   (attach-tag 'sparse '()))
-; (define (neg p)
-;   (define (rec lst)
-;     (if (empty-termlist? lst)
-;         nil
-;         (let ((first-t (first-term lst))
-;               (rest-t (rest-terms lst)))
-;           (cons (make-term (order first-t) (sub 0 (coeff first-t))) (rec rest-t)))))
-;   (make-poly (variable p) (attach-tag 'sparse (rec (term-list p)))))
 
 (define (dense->sparse term-list)
   (define (rec lst)
@@ -162,7 +154,7 @@
          (mul-term-by-all-terms t1 (rest-terms L))))))
 
 (define (sub-poly p1 p2)
-  (add-poly p1 (neg p2)))
+  (add-poly (make-poly (variable p1) (dense->sparse (term-list p1))) (neg p2)))
 
 (define p1 (make-poly 'x '(sparse (term 6 2) (term 5 1) (term 4 2) (term 3 3))))
 (define p2 
@@ -177,17 +169,19 @@
 (define tl-4 (term-list p4))
 (define tl-5 (term-list p5))
 
-; (adjoin-term (first-term (term-list p1)) (term-list p2))
 (define tt-1 (first-term (term-list p1)))
 (define tt-3 (first-term (term-list p3)))
 
-tl-1
-tl-2
-tl-3
-tl-4
-tl-5
-tt-1
-tt-3
+; tl-1
+; tl-2
+; tl-3
+; tl-4
+; tl-5
+; tt-1
+; tt-3
+
+; (sub-poly p3 p3)
+; (add-terms )
 
 ; (adjoin-term tt-1 tl-2)
 ; (adjoin-term tt-3 tl-5)
