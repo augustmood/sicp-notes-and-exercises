@@ -47,3 +47,14 @@
 (mul poly-2 poly-3)
 (mul poly-3 poly-4)
 (mul poly-4 poly-5)
+
+(div poly-1 poly-1)
+(div poly-2 poly-2)
+(div poly-3 poly-3)
+(div poly-4 poly-4)
+(div poly-5 poly-5)
+
+(div poly-1 poly-2)
+(div poly-2 poly-3)
+(div poly-3 poly-4)
+(div poly-4 poly-5)

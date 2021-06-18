@@ -57,6 +57,25 @@
                      (add-terms (rest-terms L1)
                                 (rest-terms L2)))))))))
   
+  (define (dense->sparse term-list)
+    (define (rec lst)
+      (if (empty-termlist? lst)
+          '(sparse)
+          (let ((first-t (first-term lst))
+                (rest-t (rest-terms lst)))
+            (adjoin-term (make-term (order first-t) (coeff first-t)) (rec rest-t)))))
+    (if (eq? (type-tag term-list) 'dense)
+        (rec term-list)
+        term-list))
+  
+  (define (neg-terms L)
+    (attach-tag 'sparse (map (lambda (term)
+                               (make-term (order term) (sub 0 (coeff term))))
+                             (contents (dense->sparse L)))))
+  
+  (define (sub-terms L1 L2)
+    (add-terms (dense->sparse L1) (neg-terms L2)))
+  
   (define (mul-terms L1 L2)
     (if (empty-termlist? L1)
         (the-empty-termlist)
@@ -72,6 +91,24 @@
                       (mul (coeff t1) (coeff t2)))
            (mul-term-by-all-terms t1 (rest-terms L))))))
   
+  (define (div-terms L1 L2)
+    (if (empty-termlist? L1)
+        (list (the-empty-termlist) (the-empty-termlist))
+        (let ((t1 (first-term L1))
+              (t2 (first-term L2)))
+          (if (> (order t2) (order t1))
+              (list (the-empty-termlist) L1)
+              (let ((new-c (div (coeff t1) (coeff t2)))
+                    (new-o (- (order t1) (order t2))))
+                (let ((rest-of-result
+                       (div-terms (sub-terms L1 
+                                             (mul-term-by-all-terms 
+                                              (make-term new-o new-c) L2)) L2)))
+                  (append-div-result (list (make-term new-o new-c) '()) rest-of-result)))))))
+  
+  (define (append-div-result rl1 rl2)
+    (list (adjoin-term (car rl1) (car rl2)) (append (cadr rl1) (cadr rl2))))
+  
   (define (add-poly p1 p2)
     (if (same-variable? (variable p1) (variable p2))
         (make-poly (variable p1)
@@ -80,33 +117,30 @@
         (error "Polys not in same var -- ADD-POLY"
                (list p1 p2))))
   
-  (define (dense->sparse term-list)
-    (define (rec lst)
-      (if (empty-termlist? lst)
-          '(sparse)
-          (let ((first-t (first-term lst))
-                (rest-t (rest-terms lst)))
-            (adjoin-term (make-term (order first-t) (coeff first-t)) (rec rest-t)))))
-    (if (eq? (type-tag term-list) 'dense)
-        (rec term-list)
-        term-list))
-  
-  (define (neg p)
-    (let ((var (variable p))
-          (term-sets (term-list p)))
-      (make-poly var 
-                 (attach-tag 'sparse (map (lambda (term)
-                                            (make-term (order term) (sub 0 (coeff term))))
-                                          (contents (dense->sparse term-sets)))))))
-  
   (define (sub-poly p1 p2)
-    (add-poly (make-poly (variable p1) (dense->sparse (term-list p1))) (neg p2)))
+    (if (same-variable? (variable p1) (variable p2))
+        (make-poly (variable p1)
+                   (sub-terms (term-list p1)
+                              (term-list p2)))
+        (error "Polys not in same var -- ADD-POLY"
+               (list p1 p2))))
   
   (define (mul-poly p1 p2)
     (if (same-variable? (variable p1) (variable p2))
         (make-poly (variable p1)
                    (mul-terms (term-list p1)
                               (term-list p2)))
+        (error "Polys not in same var -- MUL-POLY"
+               (list p1 p2))))
+  
+  (define (div-poly p1 p2)
+    (if (same-variable? (variable p1) (variable p2))
+        (let ((results (div-terms (term-list p1)
+                                  (term-list p2))))
+          (list (make-poly (variable p1)
+                           (car results))
+                (make-poly (variable p1)
+                           (cadr results))))
         (error "Polys not in same var -- MUL-POLY"
                (list p1 p2))))
   
@@ -125,6 +159,8 @@
        (lambda (p1 p2) (tag (sub-poly p1 p2))))
   (put 'mul '(polynomial polynomial) 
        (lambda (p1 p2) (tag (mul-poly p1 p2))))
+  (put 'div '(polynomial polynomial)
+       (lambda (p1 p2) (map tag (div-poly p1 p2))))
   (put 'make 'polynomial
        (lambda (var terms) (tag (make-poly var terms))))
   'done)

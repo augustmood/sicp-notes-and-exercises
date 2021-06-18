@@ -2,7 +2,7 @@
 (#%require "interface.rkt")
 (#%provide (all-defined))
 
-(define tower '((1 integer) (2 rational) (3 real) (4 complex)))
+(define tower '((1 integer) (2 rational) (3 real) (4 complex) (5 polynomial)))
 
 (define (tower-level id sets)
   (let ((check (if (number? id) car cadr))
@@ -42,13 +42,12 @@
   (equal? (iter x nil)
           (iter y nil)))
 
-
 (define (drop arg)
   (let ((fixed-arg (if (and (eq? (type-tag arg) 'complex) 
                             (eq? (type-tag (contents arg)) 'polar))
                        ((get-coercion 'polar 'rect) arg)
                        arg)))
-    (if (general-eq? fixed-arg (raise (project fixed-arg)))
+    (if (and (project fixed-arg) (general-eq? fixed-arg (raise (project fixed-arg))))
         (drop (project fixed-arg))
         fixed-arg)))
 
