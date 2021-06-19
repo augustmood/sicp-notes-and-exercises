@@ -45,5 +45,13 @@
 (define (make-complex-from-mag-ang r a)
   ((get 'make-from-mag-ang 'complex) r a))
 
+(define (make-term order coeff)
+  ((get 'make-term 'term) order coeff))
+(define (adjoin-term term term-list)
+  (apply-generic 'adjoin-term term term-list))
+(define (first-term term-list)
+  (apply-generic 'first-term term-list))
+(define (rest-terms term-list)
+  (apply-generic 'rest-terms term-list))
 (define (make-polynomial var terms)
   ((get 'make 'polynomial) var terms))

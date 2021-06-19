@@ -25,19 +25,30 @@
   (define (real->complex arg)
     (make-complex-from-real-imag (exact->inexact arg) 0))
   
+  ; (define (complex->polynomial arg)
+  ;   (if (= (imag-part arg) 0)
+  ;       (if (and (eq? (type-tag (real-part arg)) 'polynomial)
+  ;                (eq? (car (contents (real-part arg))) 'x))
+  ;           (add (make-polynomial 'x '(sparse)) (real-part arg))
+  ;           (make-polynomial 'x (list 'sparse (list 'term 0 (real-part arg)))))
+  ;       (make-polynomial 'x (list 'sparse (list 'term 0 arg)))))
+  
   (define (complex->polynomial arg)
-    (if (= (imag-part arg) 0)
-        (if (and (eq? (type-tag (real-part arg)) 'polynomial) 
-                 (eq? (car (contents (real-part arg))) 'x))
-            (add (make-polynomial 'x '(sparse)) (real-part arg))
-            (make-polynomial 'x (list 'sparse (list 'term 0 (real-part arg)))))
-        (make-polynomial 'x (list 'sparse (list 'term 0 arg)))))
+    (make-polynomial 
+     'x (adjoin-term 
+         (make-term 0
+                    (if (= (imag-part arg) 0)
+                        (if (eq? (type-tag (real-part arg)) 'rational)
+                            (rational->real (real-part arg))
+                            (real-part arg))
+                        arg)) '(sparse))))
+  
   
   (define (polynomial->complex arg)
-    (if (null? (cdddr (contents arg)))
+    (if (= (cadr (caddr (contents arg))) 0)
         (make-complex-from-real-imag (caddr (caddr (contents arg))) 0)
-        ; (make-complex-from-real-imag arg 0)))
-        #f))
+        (make-complex-from-real-imag 0 0)))
+  ; (make-complex-from-real-imag arg 0)))))
   
   (define (complex->real arg)
     (let ((coered-arg (real-part arg)))

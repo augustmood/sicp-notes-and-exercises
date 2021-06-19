@@ -63,7 +63,7 @@
         args
         (iter (map 
                (lambda (i) 
-                 (if (eq? (type-tag i) highest-type) 
+                 (if (eq? (type-tag i) highest-type)
                      i 
                      (raise i))) args))))
   (iter args))
