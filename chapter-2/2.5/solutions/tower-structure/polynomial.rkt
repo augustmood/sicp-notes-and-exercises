@@ -132,7 +132,7 @@
              (and (= (order first-p1) 0) (= (order first-p2) 0)))
          (make-poly (variable p1)
                     (add-terms (term-list p1)
-                               (term-list p2))))
+                               (term-list p2))) )
         ((= (order first-p1) 0)
          (add-poly (make-poly (variable p2) (term-list p1)) p2))
         

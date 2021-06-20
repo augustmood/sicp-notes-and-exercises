@@ -40,6 +40,7 @@ poly-4
 (add poly-2 poly-5)
 (add poly-4 (add poly-2 poly-5))
 (add (add poly-2 poly-5) (add poly-4 (add poly-2 poly-5)))
+
 ; ((get-coercion 'complex 'polynomial) (raise (raise (raise 0))))
 ; (add poly-1 poly-2)
 ; (add poly-1 poly-5)
