@@ -12,6 +12,7 @@
 (install-arithmetic)
 (install-polynomial-package)
 (install-coercion)
+
 (define poly-1 (make-polynomial 'x '(sparse (term 0 2))))
 (define poly-2 (make-polynomial 'x '(sparse (term 1 1) (term 0 2))))
 (define poly-3 (make-polynomial 'x '(sparse (term 0 3))))
@@ -36,33 +37,17 @@
 
 ; (add poly-2 poly-6)
 ; (add poly-2 poly-5)
-poly-4
-(add poly-2 poly-5)
-(add poly-4 (add poly-2 poly-5))
-(add (add poly-2 poly-5) (add poly-4 (add poly-2 poly-5)))
 
-; ((get-coercion 'complex 'polynomial) (raise (raise (raise 0))))
-; (add poly-1 poly-2)
-; (add poly-1 poly-5)
+(define poly-7 (mul poly-2 poly-5))
+(define poly-8 (mul poly-4 poly-7))
+(define poly-9 (mul poly-7 poly-8))
+(define poly-10 (make-polynomial 'x '(sparse (term 6 8) (term 5 7) (term 4 6) (term 3 3))))
+(define poly-11 (make-polynomial 'y '(sparse (term 1 3) (term 0 2))))
+(define poly-12 (mul poly-10 poly-11))
 
-; (get-coercion 'real 'complex)
-
-;; integer/real/rational -> polynomial: ok
-;; complex -> polynomial: ?
-;;           (if (= (imag-part complex) 0)
-;;               -> polynomial: ok
-;;               -> polynomial: work, but not in good looking.
-;; In fact, this is diffcult to justify, uhmmm, since our original raise/drop/coercion only takes
-;; one argument, and even from the understanding of coercion and the number-systems, We'd better
-;; not to coerce these numbers to polynomials.
-;; And we may need to modifiy the mul or create a new `mul` that can multiply polynomial by complex
-;; or other sort of number, it may need to drop the number to as simple as possible, and then coerce
-;; to the polynomial with the variable of the existed poly's variable.
-;; 
-;; polynomial -> complex: only if the polynomial only has the 0-order term.
-
-;;
-;; No complex number can have a real-part or imag-part of a polynomial, if so, it is a polynomial
-;; and not a complex number.
-
-;; 
+; (mod-print poly-7)
+; (mod-print poly-8)
+; (mod-print poly-9)
+(mod-print poly-7)
+(mod-print poly-10)
+(mod-print (add poly-7 poly-10))

@@ -55,3 +55,6 @@
   (apply-generic 'rest-terms term-list))
 (define (make-polynomial var terms)
   ((get 'make 'polynomial) var terms))
+
+(define (mod-print p)
+  (apply-generic 'mod-print p))

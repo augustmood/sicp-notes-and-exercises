@@ -1,9 +1,15 @@
-#lang sicp
+#lang racket
+(require (except-in sicp
+                    angle
+                    magnitude
+                    real-part
+                    imag-part))
 (#%require "interface.rkt")
 (#%require "operators.rkt")
 (#%require "arithmetic.rkt")
 (#%require "tower-system.rkt")
 (#%provide (all-defined))
+
 
 (define (install-term-package)
   (define (make-term order coeff) (list order coeff))
@@ -514,3 +520,4 @@
 
 ; (add-poly a (make-poly (variable a) (adjoin-term (make-term 0 '(polynomial y sparse (term 1 1))) (the-empty-termlist))))
 ; (add 4 '(polynomial y sparse (term 1 1)) )
+

@@ -51,8 +51,18 @@
         (drop (project fixed-arg))
         fixed-arg)))
 
+; (define (highest type-tags)
+;   (tower-level (apply max (map (lambda (i) (tower-level i tower)) type-tags)) tower)
+;   )
+
+; (tower-level (max (map car (filter (lambda (i) (not (eq? (cadr i) 'polynomial))) tower))) tower)
+
 (define (highest type-tags)
-  (tower-level (apply max (map (lambda (i) (tower-level i tower)) type-tags)) tower))
+  (if (null? (cdr type-tags))
+      (tower-level (apply max (map car (filter (lambda (i) (not (eq? (cadr i) 'polynomial))) tower)))
+                   tower)
+      (tower-level (apply max (map (lambda (i) (tower-level i tower)) type-tags)) tower)
+      ))
 
 (define (all-type-same? type-tags type)
   (accumulate (lambda (x y) (and (eq? x type) y)) #t type-tags))
@@ -95,5 +105,9 @@
                     (let ((new-type-tags (map type-tag dropped)))
                       (let ((new-proc (get op new-type-tags)))
                         (let ((new-highest-type (highest new-type-tags)))
-                          (apply-general op (coercion dropped new-highest-type))))))))))))
+                          (if (and (eq? op 'div) 
+                                   (< (tower-level new-highest-type tower) (tower-level 'real tower)))
+                              (apply-general op (coercion dropped 'real))
+                              (apply-general op (coercion dropped new-highest-type))
+                              )))))))))))
   (apply-general op args))

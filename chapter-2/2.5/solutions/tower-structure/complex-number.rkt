@@ -42,6 +42,11 @@
     (= (real-part z) (imag-part z) 0))
   
   (define (tag z) (attach-tag 'complex z))
+
+  (define (print-complex z)
+     (if (= (imag-part z) 0) 
+         (exact->inexact (real-part z))
+          z))
   
   (put 'add '(complex complex)
        (lambda (z1 z2) (tag (add-complex z1 z2))))
@@ -60,6 +65,8 @@
   (put 'imag-part '(complex) imag-part)
   (put 'magnitude '(complex) magnitude)
   (put 'angle '(complex) angle)
+  (put 'mod-print '(complex)
+       (lambda (p) (print-complex p)))
   (put 'make-from-real-imag 'complex
        (lambda (x y) (tag (make-from-real-imag x y))))
   (put 'make-from-mag-ang 'complex
