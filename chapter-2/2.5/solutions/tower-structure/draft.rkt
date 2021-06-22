@@ -123,6 +123,12 @@
       (tag x)
       x))
 
+(define (coeff-list p)
+  (map coeff (contents (term-list p))))
+
+(define (poly-list? termlist)
+  (accumulate (lambda (x y) (or x y)) #f (map polynomial? termlist)))
+
 (define (add-terms L1 L2)
   (cond ((empty-termlist? L1) L2)
         ((empty-termlist? L2) L1)
@@ -220,6 +226,29 @@
 (define (polynomial? p)
   (and (pair? p) (eq? (type-tag p) 'polynomial)))
 
+
+(define (simplify-addition p var)
+  (let ((curr-var (variable p))
+        (terms (term-list p)))
+    (define (iter terms)
+      (if (empty-termlist? terms)
+          (make-poly var (list 'sparse))
+          (let 
+              ((first (first-term terms))
+               (rests (rest-terms terms)))
+            (add-poly 
+             (contents 
+              (mul (coeff first)
+                   (tag (make-poly var (list 'sparse 
+                                             (make-term 0 
+                                                        (tag (make-poly 
+                                                              curr-var (list 
+                                                                        'sparse 
+                                                                        (make-term 
+                                                                         (order first) 1))))))))))
+             (iter rests)))))
+    (iter terms)))
+
 (define (add-poly p1 p2)
   (let ((first-p1 (first-term (term-list p1)))
         (first-p2 (first-term (term-list p2))))
@@ -281,6 +310,15 @@
                                  (make-poly (variable (car args))
                                             (list 'sparse (make-term 0 (tag (cadr args))))))))))))))
 
+(define (add-poly-pro p1 p2)
+  (let ((result (add-poly p1 p2)))
+    (let ((zero-p (car (order-zero result)))
+          (no-zero-p (cadr (order-zero result))))
+      (if (pair? zero-p)
+          (add-poly (simplify-addition (contents zero-p) (variable result)) no-zero-p)
+          result))))
+
+
 
 
 (define (sub-poly p1 p2)
@@ -291,37 +329,6 @@
       (error "Polys not in same var -- ADD-POLY"
              (list p1 p2))))
 
-; (define (mul-poly p1 p2)
-;   (if (same-variable? (variable p1) (variable p2))
-;       (make-poly (variable p1)
-;                  (mul-terms (term-list p1)
-;                             (term-list p2)))
-;       (error "Polys not in same var -- MUL-POLY"
-;              (list p1 p2))))
-
-; (define (distributive-inside-poly p)
-;   (let ((var (variable p))
-;         (terms (term-list p)))
-;     (define (rec lst)
-;       (if (empty-termlist? lst)
-;           (make-poly var (list 'sparse))
-;           (let ((first-t (first-term lst))
-;                 (rest-t (rest-terms lst)))
-;             (let ((first-poly (tag (make-poly var (list 'sparse (make-term (order first-t) 1))))))
-;               (add-poly (contents (mul first-poly (coeff first-t)))
-;                         (rec rest-t))
-;               ))))
-;     (rec terms)))
-
-; (define (mod-gcd args)
-;   (let ((non-number (filter (lambda (i) (not (number? i))) args))
-;         (numbers (filter (lambda (i) (number? i)) args)))
-;     (gcd numbers))) ;; currently I'll just assume there's only one layer of poly in the coeff
-
-
-(define (coeff-list p)
-  (map coeff (contents (term-list p))))
-
 (define (get-co p)
   (let ((base (contents (car (coeff-list p)))))
     (let ((co-arg (apply gcd (coeff-list base))))
@@ -331,9 +338,6 @@
   (let ((base (contents (car args))))
     (let ((co-arg (apply gcd (coeff-list base))))
       (div-poly base (make-poly (variable base) (list 'sparse (make-term 0 co-arg)))))))
-
-(define (poly-list? termlist)
-  (accumulate (lambda (x y) (or x y)) #f (map polynomial? termlist)))
 
 (define (mod-gcd args)
   (cond ((poly-list? args) (gcd-poly args)) ;; <- polynomials
@@ -374,30 +378,30 @@
                 ; (display "multi-t2:\n")
                 ; (display multi-t2)
                 ; (newline)
-                    (let ((arg-p1 (div-poly arg1 
-                                            (make-poly (variable arg1) 
-                                            (list 'sparse (make-term 0 (tag multi-t1))))))
-                          (arg-p2 (div-poly arg2
-                                            (make-poly (variable arg2) 
-                                                       (list 'sparse (make-term 0 (tag multi-t2)))))))
-                      ; (display "arg-p1:\n")
-                      ; (display arg-p1)
-                      ; (newline)
-                      ; (display "arg-p2:\n")
-                      ; (display arg-p2)
-                      ; (newline)
-                      (cond ((and (same-variable? (variable multi-t1) (variable arg-p2))
-                                 (same-variable? (variable multi-t2) (variable arg-p1)))
-                             (mul-poly (mul-poly multi-t1 arg-p2)
-                                       (mul-poly multi-t2 arg-p1)))
-                            ((same-variable? (variable multi-t1) (variable arg-p2))
-                             (mul-poly arg-p1 (mul-poly arg2 multi-t1)))
-                            ((same-variable? (variable multi-t2) (variable arg-p1))
-                             (mul-poly (mul-poly arg1 multi-t2) arg-p2))
-                            (else   (mul-poly arg1 
-                                              (make-poly (variable arg1)
-                                                         (list 'sparse 
-                                                               (make-term 0 (tag arg2)))))))))))))))
+                (let ((arg-p1 (div-poly arg1 
+                                        (make-poly (variable arg1) 
+                                                   (list 'sparse (make-term 0 (tag multi-t1))))))
+                      (arg-p2 (div-poly arg2
+                                        (make-poly (variable arg2) 
+                                                   (list 'sparse (make-term 0 (tag multi-t2)))))))
+                  ; (display "arg-p1:\n")
+                  ; (display arg-p1)
+                  ; (newline)
+                  ; (display "arg-p2:\n")
+                  ; (display arg-p2)
+                  ; (newline)
+                  (cond ((and (same-variable? (variable multi-t1) (variable arg-p2))
+                              (same-variable? (variable multi-t2) (variable arg-p1)))
+                         (mul-poly (mul-poly multi-t1 arg-p2)
+                                   (mul-poly multi-t2 arg-p1)))
+                        ((same-variable? (variable multi-t1) (variable arg-p2))
+                         (mul-poly arg-p1 (mul-poly arg2 multi-t1)))
+                        ((same-variable? (variable multi-t2) (variable arg-p1))
+                         (mul-poly (mul-poly arg1 multi-t2) arg-p2))
+                        (else   (mul-poly arg1 
+                                          (make-poly (variable arg1)
+                                                     (list 'sparse 
+                                                           (make-term 0 (tag arg2)))))))))))))))
 
 (define (div-poly p1 p2)
   (let ((div-result
@@ -513,41 +517,22 @@
 (define poly-10 (make-poly 'x '(sparse (term 6 8) (term 5 7) (term 4 6) (term 3 3))))
 (define poly-11 (make-poly 'y '(sparse (term 1 3) (term 0 2))))
 (define poly-12 (mul-poly poly-10 poly-11))
+(define poly-13 (make-poly 'y '(sparse (term 10 1))))
+(define poly-14 (make-poly 'x '(sparse (term 0 (polynomial y sparse (term 6 1))))))
+(define poly-15 (make-poly 'x '(sparse (term 1 1))))
+(define poly-17 (make-poly 'x '(sparse (term 0 (polynomial x sparse (term 6 1))))))
+(mul-poly poly-14 poly-15)
 
-; (car (map coeff (contents (term-list poly-7))))
+(print-poly poly-8)
+(add-poly poly-8 poly-13)
+(print-poly (add-poly poly-8 poly-13))
+(car (order-zero (add-poly poly-8 poly-13)))
+(mod-print (car (order-zero (add-poly poly-8 poly-13))))
 
+(contents (car (order-zero (add-poly poly-8 poly-13))))
 
-; (print-poly poly-10)
-; (print-poly poly-11)
+(simplify-addition (contents (car (order-zero (add-poly poly-8 poly-13)))) 'y)
+(simplify-addition poly-17 'x)
 
-; poly-12
-; (print-poly poly-12)
-
-; poly-12
-; (print-poly (get-co poly-12))
-
-
-; (define cp2 (coeff (first-term (term-list (make-poly (variable poly-12) (list 'sparse (make-term 0 (tag (get-co poly-12)))))))))
-; (newline)
-; cp2
-; (newline)
-; (contents (term-list poly-12))
-; (newline)
-; (map (lambda (i) 
-;        (make-term (order i) 
-;                   (div (coeff i) cp2)))
-;      (contents (term-list poly-12)))
-; poly-10
-; (get-co poly-12)
-; poly-12
-; (div-poly poly-12 (make-poly (variable poly-12) (list 'sparse (make-term 0 (tag (get-co poly-12))))))
-; (print-poly (div-poly poly-12 (make-poly (variable poly-12) (list 'sparse (make-term 0 (tag (get-co poly-12)))))))
-
-; (print-poly poly-12)
-
-
-
-; (print-poly (get-co (mul-poly poly-10 poly-11)))
-
-; (mod-gcd (coeff-list poly-2))
-; (mod-gcd (coeff-list poly-12))
+(simplify-addition '(x sparse (term 7 (polynomial y sparse (term 1 8) (term 0 16))) (term 6 (polynomial y sparse (term 1 8) (term 0 16))) (term 5 (polynomial y sparse (term 1 10) (term 0 20))) (term 4 (polynomial y sparse (term 1 16) (term 0 32))) (term 3 (polynomial y sparse (term 1 6) (term 0 12)))) 'y)
+(add-poly-pro poly-8 poly-13)

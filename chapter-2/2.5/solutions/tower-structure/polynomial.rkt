@@ -109,6 +109,9 @@
   (define (append-div-result rl1 rl2)
     (list (adjoin-term (car rl1) (car rl2)) (append (cadr rl1) (cadr rl2))))
   
+  (define (reverse lst)
+    (accumulate (lambda (x y) (append y (list x))) nil lst))
+
   (define (order-zero p)
     (let ((reversed (reverse (contents (dense->sparse (term-list p))))))
       (let ((first (car reversed)))
@@ -119,6 +122,28 @@
   (define (polynomial? p)
     (and (pair? p) (eq? (type-tag p) 'polynomial)))
   
+  (define (simplify-addition p var)
+    (let ((curr-var (variable p))
+          (terms (term-list p)))
+      (define (iter terms)
+        (if (empty-termlist? terms)
+            (make-poly var (list 'sparse))
+            (let 
+                ((first (first-term terms))
+                 (rests (rest-terms terms)))
+              (add-poly 
+               (contents 
+                (mul (coeff first)
+                     (tag (make-poly var (list 'sparse 
+                                               (make-term 0 
+                                                          (tag (make-poly 
+                                                                curr-var (list 
+                                                                          'sparse 
+                                                                          (make-term 
+                                                                           (order first) 1))))))))))
+               (iter rests)))))
+      (iter terms)))
+
   (define (add-poly p1 p2)
     (let ((first-p1 (first-term (term-list p1)))
           (first-p2 (first-term (term-list p2))))
@@ -154,6 +179,14 @@
                                               (list 'sparse 
                                                     (make-term 0 (tag (cadr args))))))))))))))
   
+  (define (add-poly-pro p1 p2)
+    (let ((result (add-poly p1 p2)))
+      (let ((zero-p (car (order-zero result)))
+            (no-zero-p (cadr (order-zero result))))
+        (if (pair? zero-p)
+            (add-poly (simplify-addition (contents zero-p) (variable result)) no-zero-p)
+            result))))
+
   (define (sub-poly p1 p2)
     (if (same-variable? (variable p1) (variable p2))
         (make-poly (variable p1)
@@ -287,7 +320,7 @@
   (put 'mod-print '(polynomial)
        (lambda (p) (print-poly p)))
   (put 'add '(polynomial polynomial) 
-       (lambda (p1 p2) (tag (add-poly p1 p2))))  
+       (lambda (p1 p2) (tag (add-poly-pro p1 p2))))  
   (put 'sub '(polynomial polynomial) 
        (lambda (p1 p2) (tag (sub-poly p1 p2))))
   (put 'mul '(polynomial polynomial) 

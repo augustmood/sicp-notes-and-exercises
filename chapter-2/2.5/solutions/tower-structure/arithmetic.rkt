@@ -4,7 +4,6 @@
 (#%require "rational-number.rkt")
 (#%require "real.rkt")
 (#%require "complex-number.rkt")
-(#%require "polynomial.rkt")
 (#%require "operators.rkt")
 (#%provide (all-defined))
 
@@ -45,7 +44,7 @@
   
   
   (define (polynomial->complex arg)
-    (if (= (cadr (caddr (contents arg))) 0)
+    (if (and (= (cadr (caddr (contents arg))) 0) (number? (caddr (caddr (contents arg)))))
         (make-complex-from-real-imag (caddr (caddr (contents arg))) 0)
         (make-complex-from-real-imag 0 0)))
   ; (make-complex-from-real-imag arg 0)))))
@@ -77,5 +76,4 @@
   (put-coercion 'real 'rational real->rational)
   (put-coercion 'complex 'real complex->real)
   (put-coercion 'polynomial 'complex polynomial->complex)
-  (put-coercion 'polar 'rect polar->rect)
-  )
+  (put-coercion 'polar 'rect polar->rect))
