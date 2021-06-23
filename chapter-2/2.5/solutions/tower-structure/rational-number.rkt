@@ -1,35 +1,36 @@
 #lang sicp
 (#%require "interface.rkt")
+(#%require "operators.rkt")
 (#%provide (all-defined))
 
 (define (install-rational-package)
   ;; internal procedures
   (define (numer x) (car x))
-  (define (denom x) (cdr x))
+  (define (denom x) (cadr x))
   (define (make-rat n d)
-    (if (= d 0)
+    (if (=zero? d)
         (error "Denominator cannot be equal to 0")
-        (let ((g (gcd n d)))
-          (cons (/ n g) (/ d g)))))
+        (let ([args (reduce n d)])
+          (list (car args) (cadr args)))))
   (define (add-rat x y)
-    (make-rat (+ (* (numer x) (denom y))
-                 (* (numer y) (denom x)))
-              (* (denom x) (denom y))))
+    (make-rat (add (mul (numer x) (denom y))
+                   (mul (numer y) (denom x)))
+              (mul (denom x) (denom y))))
   (define (sub-rat x y)
-    (make-rat (- (* (numer x) (denom y))
-                 (* (numer y) (denom x)))
-              (* (denom x) (denom y))))
+    (make-rat (sub (mul (numer x) (denom y))
+                   (mul (numer y) (denom x)))
+              (mul (denom x) (denom y))))
   (define (mul-rat x y)
-    (make-rat (* (numer x) (numer y))
-              (* (denom x) (denom y))))
+    (make-rat (mul (numer x) (numer y))
+              (mul (denom x) (denom y))))
   (define (div-rat x y)
-    (make-rat (* (numer x) (denom y))
-              (* (denom x) (numer y))))
+    (make-rat (mul (numer x) (denom y))
+              (mul (denom x) (numer y))))
   
   ;; ex2.79 below:```
   (define (equ?-rat x y)
-    (and (= (numer x) (numer y))
-         (= (denom x) (denom y))))
+    (and (equ? (numer x) (numer y))
+         (equ? (denom x) (denom y))))
   
   (define (rat->ordinary x)
     ; (numer x))
@@ -37,9 +38,15 @@
   ;; ```ex2.79 above.
   
   ;; ex2.80 below:```
-  (define (=zero? x)
+  (define (=zero?-rat x)
     (= (numer x) 0))
   ;; ```ex2.80 above.
+  
+  (define (print-rat x)
+    (append (list (mod-print (numer x))) (list '/) (list (mod-print (denom x)))))
+  
+  ;   (define (gcf-rational args)
+  ;     (apply gcd (map rat->ordinary args)))
   
   ;; interface to rest of the system
   (define (tag x) (attach-tag 'rational x))
@@ -62,15 +69,18 @@
   
   ;; ex2.80 below:```
   (put '=zero? '(rational)
-       (lambda (x) (=zero? x)))
+       (lambda (x) (=zero?-rat x)))
   ;; ```ex2.80 above.
+  
+  (put 'mod-print '(rational)
+       (lambda (p) (print-rat p)))
   
   (put 'sine '(rational)
        (lambda (x) (sin (/ (numer x) (denom x)))))
   
   (put 'cosine '(rational)
        (lambda (x) (cos (/ (numer x) (denom x)))))
-       
+  
   (put 'make 'rational
        (lambda (n d) (tag (make-rat n d))))
   'done)

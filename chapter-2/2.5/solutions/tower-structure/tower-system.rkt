@@ -94,6 +94,9 @@
         ; (display "contents:")
         ; (display (map contents sets))
         ; (newline)
+        ; (display "proc: ")
+        ; (display proc)
+        ; (newline)
         (if proc 
             (apply proc (map contents sets))
             (let ((highest-type (highest type-tags)))

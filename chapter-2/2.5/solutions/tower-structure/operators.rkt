@@ -58,3 +58,11 @@
 
 (define (mod-print p)
   (apply-generic 'mod-print p))
+
+(define (greatest-common-divisor a b)
+  (if (eq? (type-tag a) 'polynomial)
+      (apply-generic 'greatest-common-divisor a b)
+      (gcd a b)))
+
+(define (reduce a b)
+  (apply-generic 'reduce a b))

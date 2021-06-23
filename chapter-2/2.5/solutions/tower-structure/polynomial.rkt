@@ -111,7 +111,7 @@
   
   (define (reverse lst)
     (accumulate (lambda (x y) (append y (list x))) nil lst))
-
+  
   (define (order-zero p)
     (let ((reversed (reverse (contents (dense->sparse (term-list p))))))
       (let ((first (car reversed)))
@@ -143,7 +143,7 @@
                                                                            (order first) 1))))))))))
                (iter rests)))))
       (iter terms)))
-
+  
   (define (add-poly p1 p2)
     (let ((first-p1 (first-term (term-list p1)))
           (first-p2 (first-term (term-list p2))))
@@ -186,7 +186,7 @@
         (if (pair? zero-p)
             (add-poly (simplify-addition (contents zero-p) (variable result)) no-zero-p)
             result))))
-
+  
   (define (sub-poly p1 p2)
     (if (same-variable? (variable p1) (variable p2))
         (make-poly (variable p1)
@@ -196,14 +196,19 @@
                (list p1 p2))))
   
   (define (coeff-list p)
-    (map coeff (contents (term-list p))))
+    (if (symbol? (cadr p))
+        (map coeff (contents (term-list p)))
+        (map coeff (contents p)))) 
+  ;; when I first write this function, I just want to make it takes
+  ;; term-list as function, but somehow I made it wrong as taking the
+  ;; polynomial experssion as arguments...
   
   (define (get-co p)
     (let ((base (contents (car (coeff-list p)))))
       (let ((co-arg (apply gcd (coeff-list base))))
         (div-poly base (make-poly (variable base) (list 'sparse (make-term 0 co-arg)))))))
   
-  (define (gcd-poly args)
+  (define (gcd-poly-coeff args)
     (let ((base (contents (car args))))
       (let ((co-arg (apply gcd (coeff-list base))))
         (div-poly base (make-poly (variable base) (list 'sparse (make-term 0 co-arg)))))))
@@ -212,10 +217,10 @@
     (accumulate (lambda (x y) (or x y)) #f (map polynomial? termlist)))
   
   (define (mod-gcd args)
-    (cond ((poly-list? args) (gcd-poly args)) ;; <- polynomials
+    (cond ((poly-list? args) (gcd-poly-coeff args)) ;; <- polynomials
           ((null? args) (make-poly 'temp-var (list 'sparse (make-term 0 1)))) ;; <- null, return 1
           (else (make-poly 'temp-var (list 'sparse (make-term 0 (apply gcd args))))))) ;; <- numbers
-
+  
   (define (mul-poly p1 p2)
     (let ((of-p1 (order (first-term (term-list p1))))
           (of-p2 (order (first-term (term-list p2)))))
@@ -251,7 +256,7 @@
                                             (make-poly (variable arg1)
                                                        (list 'sparse 
                                                              (make-term 0 (tag arg2)))))))))))))))
-
+  
   (define (div-poly p1 p2)
     (let ((div-result
            (cond ((= (order (first-term (term-list p2))) 0)
@@ -280,8 +285,8 @@
   
   (define (=zero?-poly p)
     (or (empty-termlist? (term-list p))
-        (= (accumulate + 0 (map coeff (term-list p))) 0)
-        ))
+        (null? (filter (lambda (i) (not (=zero? i))) (coeff-list p))))
+    )
   
   (define (print-poly p)
     (let ((arg-p (make-poly (variable p) (dense->sparse (term-list p)))))
@@ -313,6 +318,38 @@
         (cdr (iter termlists))
         )))
   
+  (define (pseudoremainder-terms a b)
+    (let ([o1 (order (first-term a))]
+          [o2 (order (first-term b))]
+          [c (coeff (first-term b))])
+      (let ([new-a (mul-term-by-all-terms (make-term 0 (expt c (+ (- o1 o2) 1))) a)])
+        (cadr (div-terms new-a b)))))
+  
+  (define (simplify-gcd a)
+    (car (div-terms a (list 'sparse (make-term 0 (apply gcd (coeff-list a)))))))
+  
+  (define (gcd-terms a b)
+    (if (empty-termlist? b)
+        (simplify-gcd a)
+        (gcd-terms b (pseudoremainder-terms a b))))
+  
+  (define (gcd-poly a b)
+    (if (same-variable? (variable a) (variable b))
+        (make-poly (variable a) (gcd-terms (term-list a) (term-list b)))
+        (error "Polys not in same var -- GCD-POLY" (list a b))))
+  
+  (define (reduce-terms n d)
+    (let ([rf (gcd-terms n d)]) 
+      (map car (list (div-terms n rf) (div-terms d rf)))))
+  
+  (define (reduce-poly p1 p2)
+    (if (same-variable? (variable p1) (variable p2))
+        (let ([n (term-list p1)]
+              [d (term-list p2)])
+          (map (lambda (i) (attach-tag (variable p1) i)) (reduce-terms n d)))
+        (error "Polys not in same var -- REDUCE-POLY"
+               (list p1 p2))))
+  
   ;; interface to rest of the system
   (define (tag p) (attach-tag 'polynomial p))
   (put '=zero? '(polynomial)
@@ -332,6 +369,10 @@
                                  (map tag div-result)
                                  (tag div-result))
                              div-result))))
+  (put 'reduce '(polynomial polynomial) 
+       (lambda (p1 p2) (map tag (reduce-poly p1 p2))))
   (put 'make 'polynomial
        (lambda (var terms) (tag (make-poly var terms))))
+  (put 'greatest-common-divisor '(polynomial polynomial)
+       (lambda (a b) (tag (gcd-poly a b))))
   'done)

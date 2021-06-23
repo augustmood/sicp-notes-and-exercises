@@ -3,6 +3,9 @@
 (#%provide (all-defined))
 
 (define (install-integer-package)
+  (define (reduce-integers n d)
+    (let ((g (gcd n d)))
+      (list (/ n g) (/ d g))))
   (define (tag x)
     (attach-tag 'integer x))    
   (put 'add '(integer integer)
@@ -23,4 +26,6 @@
        (lambda (x) (cos x)))
   (put 'make 'integer
        (lambda (x) (tag (round x))))
+  (put 'reduce '(integer integer)
+       reduce-integers)
   'done)
