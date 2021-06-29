@@ -1,7 +1,7 @@
 #lang racket
 (require sicp)
-(print-as-expression #f)
-(print-mpair-curly-braces #f)
+; (print-as-expression #f)
+; (print-mpair-curly-braces #f)
 
 (define (random-in-range low high)
   (let ((range (- high low)))

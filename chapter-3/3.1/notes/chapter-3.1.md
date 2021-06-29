@@ -47,4 +47,45 @@ local state variables, and we model the changes of state with assignments to tho
 to structure systems in a more modular fashion than if all state had to be manipulated explicitly, 
 by passing additional parameters.
 
+## Chapter 3.1.3 The Costs of Introducing Assignment
+
+- Our programming can no longer be interpreted in terms of the substitution model of procedure
+application wehn we use `set!` operation to model objects taht have local state.
+
+- Programing without any use of assignments is accordingly known as `funcitonal programming`.
+
+- The book gives an example to show why substitution cannot be used when the operation `set!` be
+called:
+```scheme
+(define (make-simplified-withdraw balance)
+  (lambda (amount)
+    (set! balance (- balance amount))
+    balance))
+
+((make-simplified-withdraw 25) 20)
+
+((lambda (amount) (set! balance (- 25 amount)) 25) 20)
+
+(set! balance (- 25 20)) 25 ;; this will set balance to 5 while returning 25
+```
+
+- The trouble here is that substitution is based ultimately on the notion that the symbols in our
+language are essentially names for values.
+
+### Sameness and change
+
+- A language that supports the concept that *`equal can be substituted for equals`* in an expression
+without changing the value of the expression is said to be `referentially transparent`.
+
+- We cannot determine `change` without some a priori notion of `sameness`, and we cannot determine 
+sameness without observing the effects of change.
+
+### Pitfalls of imperative programming
+
+- In contrast to functional programming, programming that makes extensive use of assignment is known
+as `imperative progamming`.
+
+- In general, programming with assignment forces us to carefully consider the relative orders of the 
+assignments to make sure that each statement is using the correct version of the variables that have
+been changed. 
 

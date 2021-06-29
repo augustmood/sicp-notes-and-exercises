@@ -1,11 +1,10 @@
 #lang racket
 (require sicp)
-(print-as-expression #f)
-(print-mpair-curly-braces #f)
+; (print-as-expression #f)
+; (print-mpair-curly-braces #f)
 
 (define random-init 0)
-(define (rand-update i)
-  (+ i 1)) ;; using this for test
+(define rand-update inc) ;; using this for test
 
 (define rand
   (let ([x random-init])
