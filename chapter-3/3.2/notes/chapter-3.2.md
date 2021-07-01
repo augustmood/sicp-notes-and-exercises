@@ -36,4 +36,13 @@ frame.
 
 ## 3.2.3 Frames as the Repository of Local State
 
-- 
+## 3.2.4 Internal Definitions
+
+- The Environment model explains two key properties that make local procedure definitions a useful
+technique for modularizing programs:
+    - The names of the local procedures do not interfere with names external to the enclosing
+  procedure, because the local procedure names will be bound in the frame that the procedure creates
+  when it is run, rather than being bound in the global environment.
+    - The local procedures can access the arguments of the enclosing procedure, simply by using
+  parameter names as free variables. This is because the body of the local procedure is evaluated in
+  an environment that is subordinate to the evaluation environment for the enclosing procedure.

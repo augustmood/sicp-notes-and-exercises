@@ -1,3 +1,4 @@
+# Exercise 3.9
 ## Recursive version:
 ```scheme
 (define (factorial n)
@@ -7,6 +8,7 @@
 ```
 ![](pics/ex3.9/recursive.svg)
 
+## Iterative version:
 ```scheme
 (define (factorial n)
   (fact-iter 1 1 n))
