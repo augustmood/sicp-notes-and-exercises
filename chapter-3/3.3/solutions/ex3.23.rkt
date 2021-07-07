@@ -4,12 +4,13 @@
 (print-mpair-curly-braces #f)
 (provide (all-defined-out))
 
-; A deque ("double-ended queue") is a sequence in which items can be inserted and deleted at either 
-; the front or the rear. Operations on deques are the constructor make-deque, the predicate 
-; empty-deque?, selectors front-deque and rear-deque, and mutators front-insert-deque!, 
-; rear-insert-deque!, front-delete-deque!, and rear-delete-deque!. Show how to represent deques using 
-; pairs, and give implementations of the operations.All operations should be accomplished in O(1) 
-; steps.
+; A deque ("double-ended queue") is a sequence in which items can be inserted 
+; and deleted at either the front or the rear. Operations on deques are the
+; constructor make-deque, the predicate empty-deque?, selectors front-deque and
+; rear-deque, and mutators front-insert-deque!, rear-insert-deque!,
+; front-delete-deque!, and rear-delete-deque!. Show how to represent deques 
+; using pairs, and give implementations of the operations.All operations should 
+; be accomplished in O(1) steps.
 
 (define (make-deque)
   (let ([front-ptr '()]
@@ -93,13 +94,18 @@
     (define (dispatch m)
       (cond [(eq? m 'front-deque) (front-deque)]
             [(eq? m 'rear-deque) (rear-deque)]
-            [(eq? m 'set-front-deque!) (lambda (item) (set-front-deque! item))]
-            [(eq? m 'set-rear-deque!) (lambda (item) (set-rear-deque! item))]
+            [(eq? m 'set-front-deque!) 
+            (lambda (item) (set-front-deque! item))]
+            [(eq? m 'set-rear-deque!) 
+            (lambda (item) (set-rear-deque! item))]
             [(eq? m 'empty-queue?) (empty-deque?)]
-            [(eq? m 'front-insert-deque!) (lambda (item) (front-insert-deque! item))]
-            [(eq? m 'rear-insert-deque!) (lambda (item) (rear-insert-deque! item))]
+            [(eq? m 'front-insert-deque!) 
+            (lambda (item) (front-insert-deque! item))]
+            [(eq? m 'rear-insert-deque!) 
+            (lambda (item) (rear-insert-deque! item))]
             [(eq? m 'front-delete-deque!) (front-delete-deque!)]
             [(eq? m 'rear-delete-deque!) (rear-delete-deque!)]
             [(eq? m 'print-deque) (print-deque)]
             [else (error "Undefined operation: MAKE-QUEUE" m)]))
     dispatch))
+    

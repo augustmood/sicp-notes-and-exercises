@@ -1,0 +1,15 @@
+#lang racket
+(require sicp)
+(print-as-expression #f)
+(print-mpair-curly-braces #f)
+(require "ex3.25.rkt")
+
+(define a (make-table eq?))
+((a 'insert-proc!) 'key-1 'a 3)
+((a 'insert-proc!) 'key-1 'b 4)
+((a 'insert-proc!) 'a 'a-3)
+((a 'insert-proc!) 'b 'b-4)
+((a 'lookup-proc) 'key-1 'b)
+((a 'lookup-proc) 'b)
+((a 'lookup-proc) 'a)
+((a 'lookup-proc) 'key-1 'a)

@@ -30,7 +30,8 @@ w ; (a b c d)
 (cdr x)
 ; <response>
 
-; What are the missing <response>s? Draw box-and-pointer diagrams to explain your answer.
+; What are the missing <response>s? Draw box-and-pointer diagrams to explain 
+; your answer.
 
 ;; line 27: '(b)
 ;; line 31: '(b c d)

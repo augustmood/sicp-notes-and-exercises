@@ -1,12 +1,15 @@
 # Exercise 3.20
 
-Draw environment diagrams to illustrate the evaluation of the sequence of expressions:
+Draw environment diagrams to illustrate the evaluation of the sequence of
+expressions:
+
 ```scheme
 (define x (cons 1 2))
 (define z (cons x x))
 (set-car! (cdr z) 17)
 (car x) ;; 17
 ```
+
 ```scheme
 (define (cons x y)
   (define (set-x! v) (set! x v))
