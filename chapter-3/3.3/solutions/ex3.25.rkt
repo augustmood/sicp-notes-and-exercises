@@ -2,6 +2,7 @@
 (require sicp)
 (print-as-expression #f)
 (print-mpair-curly-braces #f)
+
 (provide (all-defined-out))
 
 ; Generalizing one- and two-dimensional tables, show how to implement a table in
@@ -9,60 +10,61 @@
 ; may be stored under different numbers of keys. The `lookup` and `insert!`
 ; procedures should take as input a list of keys used to access the table.
 
+(define (accumulate op initial sequence)
+  (if (null? sequence)
+      initial
+      (op (car sequence)
+          (accumulate op initial (cdr sequence)))))
+
 (define (make-table same-key?)
   (let ((local-table (list '*table*)))
+
     (define (assoc key records)
-      (cond [(null? records) false]
+      (cond [(or (null? records) (not (pair? records))) false]
             [(same-key? key (caar records)) (car records)]
             [else (assoc key (cdr records))]))
     
     (define (lookup . args)
-      (define (lookup-tables args)
-        (cond [(= (length args) 1)
-               (cons local-table (car args))]
-              [(= (length args) 2)
-               (cons (assoc (car args) (cdr local-table)) (cadr args))]
-              [else (error "Arity mismatch -- TABLE-LOOKUP")] ))
-      (let ([subtable (car (lookup-tables args))]
-            [record-key (cdr (lookup-tables args))])
-        (if subtable
-            (let ((record (assoc record-key (cdr subtable))))
-              (if record
-                  (cdr record)
-                  false))
-            false)))
+      (let ([arg-table local-table])
+        (define (lookup-iter args)
+          (if (null? args)
+              (cdr arg-table)
+              (begin (set! arg-table (assoc (car args) (cdr arg-table)))
+                      (and arg-table (lookup-iter (cdr args))))))
+        (lookup-iter args)))
     
     (define (insert! . args)
-      (let ([arg-table '()]
-            [record '()]
-            [value '()]
-            [key-1 '()]
-            [key-2 '()])
-        (cond [(= (length args) 2)
-               (begin (set! key-2 (car args))
-                      (set! arg-table local-table)
-                      (set! value (cadr args)))]
-              [(= (length args) 3)
-               (begin (set! key-1 (car args))
-                      (set! key-2 (cadr args))
-                      (set! arg-table (assoc key-1 (cdr local-table)))
-                      (set! value (caddr args)))]
-              [else (error "Arity mismatch -- TABLE-INSERT!")])
-        (if arg-table
-            (begin (set! record (assoc key-2 (cdr arg-table)))
-                   (if record
-                       (set-cdr! record value)
-                       (set-cdr! arg-table
-                                 (cons (cons key-2 value)
-                                       (cdr arg-table)))))
-            (set-cdr! local-table
-                      (cons (list key-1
-                                  (cons key-2 value))
-                            (cdr local-table))))))
+      (let ([arg-table local-table]
+            [prev-table '()]
+            [arg-value (car (reverse args))]
+            [arg-key (cadr (reverse args))]
+            [table-keys (reverse (cddr (reverse args)))])
+        (define (insert!-iter args)
+          (display arg-table)
+          (display " <- arg-table\n")
+          (if (null? args)
+              (let ([record (assoc arg-key (cdr arg-table))])
+                (if record
+                    (set-cdr! record arg-value)
+                    (set-cdr! arg-table
+                              (cons (cons arg-key arg-value)
+                                    (cdr arg-table)))))
+              (let ([temp (assoc (car args) (cdr arg-table))])
+                (if temp
+                    (and (set! arg-table temp) 
+                         (insert!-iter (cdr args)))
+                    (begin
+                      (set-cdr! arg-table 
+                                (append 
+                                 (append 
+                                  (accumulate (lambda (x y) (list (cons x y)))
+                                              (list (cons arg-key arg-value))
+                                              args))
+                                 (cdr arg-table))))))))
+        (insert!-iter table-keys)))
     
     (define (dispatch m)
-      (cond ((eq? m 'lookup-proc) lookup)
-            ((eq? m 'insert-proc!) insert!)
-            (else (error "Unknown operation -- TABLE" m))))
-    
+      (cond [(eq? m 'lookup-proc) lookup]
+            [(eq? m 'insert-proc!) insert!]
+            [else (error "Unknown operation -- TABLE" m)]))
     dispatch))

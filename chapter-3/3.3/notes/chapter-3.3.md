@@ -177,4 +177,7 @@ state:
     dispatch))
 ```
 
-
+Draw an environment diagram to analyze the computation of (memo-fib 3). Explain
+#sb why memo-fib computes the nth Fibonacci number in a number of steps
+proportional #sb to n. Would the scheme still work if we had simply defined
+memo-fib to be ; #sb (memoize fib)? ;#sb
