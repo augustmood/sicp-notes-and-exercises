@@ -98,7 +98,7 @@ and some sentences in this note are from the book: SICP <p>
                 queue)))
     ```
 
-### Chapter 3.3.3 Representing Tables
+## 3.3.3 Representing Tables
 
 - We build the table as a _`headed list`_, a headed list has a special backbone
   pair at the beginning, whichi holds a dummy "record" -- in this case (examples
@@ -177,7 +177,51 @@ state:
     dispatch))
 ```
 
-Draw an environment diagram to analyze the computation of (memo-fib 3). Explain
-#sb why memo-fib computes the nth Fibonacci number in a number of steps
-proportional #sb to n. Would the scheme still work if we had simply defined
-memo-fib to be ; #sb (memoize fib)? ;#sb
+## 3.3.4 A Simulator for Digital Circuits
+
+- In this section we design a system for performing digital logic simulations.
+  This system typifies a kind of program called an _event-driven_ simulation, in
+  which actions ("events") trigger further events that happen at a later time,
+  which in turn trigger more events, and so on.
+
+### Primitive function boxes
+
+- To build function boxes, we use the following operations on wires:
+
+  ```scheme
+  (get-signal <wire>)
+  ;; returns the current value of the signal on the wire.
+  (set-signal! <wire> <new value>)
+  ;; changes the value of the signal on the wire to the new value.
+  (add-action! <wire> <procedure of no arguments>)
+  ;; asserts that the designated procedure should be run whenever the signal on
+  ;; the wire changes value. Such procedures are the vehicles by which changes 
+  ;; in the signal value on the wire are communicated to other wires.
+  ```
+
+  ```scheme
+  (define (inverter input output)
+    (define (invert-input)
+      (let ((new-value (logical-not (get-signal input))))
+        (after-delay inverter-delay
+                    (lambda ()
+                      (set-signal! output new-value)))))
+    (add-action! input invert-input)
+    'ok)
+
+  (define (logical-not s)
+    (cond ((= s 0) 1)
+          ((= s 1) 0)
+          (else (error "Invalid signal" s))))
+
+  (define (and-gate a1 a2 output)
+    (define (and-action-procedure)
+      (let ((new-value
+            (logical-and (get-signal a1) (get-signal a2))))
+        (after-delay and-gate-delay
+                    (lambda ()
+                      (set-signal! output new-value)))))
+    (add-action! a1 and-action-procedure)
+    (add-action! a2 and-action-procedure)
+    'ok)
+  ```

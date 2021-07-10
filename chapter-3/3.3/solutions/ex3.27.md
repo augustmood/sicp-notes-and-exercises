@@ -48,28 +48,30 @@ why memo-fib computes the nth Fibonacci number in a number of steps proportional
 to n. Would the scheme still work if we had simply defined memo-fib to be
 (memoize fib)?
 
-`memoize` function can be considered as:
+- `memoize` function can be seen as:
 
-```scheme
-(define (memoize f)
-  ((lambda (table)
-     (lambda (x)
-       ((lambda (previously-computed-result)
-          (or previously-computed-result
-              ((lambda (result)
-                 (insert! x result table)
-                 result) (f x)))))
-       (lookup x table)))
-   (make-table)))
-```
+  ```scheme
+  (define (memoize f)
+    ((lambda (table)
+      (lambda (x)
+        ((lambda (previously-computed-result)
+            (or previously-computed-result
+                ((lambda (result)
+                  (insert! x result table)
+                  result) (f x)))))
+        (lookup x table)))
+    (make-table)))
+  ```
 
 - The diagram: _The diagram needed in Exercise 3.27 is probably the most
   difficult diagram to draw in Chapter 3._
-  
+
+  ![ex3.27](pics/ex3.27/ex3.27.svg)
 
 - The running time is linear, since every number from `1` to `n` are only be
-  called by memo-fib once. and each `lookup` takes only O(1) in the fib case.
+  called by `memo-fib` once. and each `lookup` takes only `O(1)` in the `fib`
+  case.
 
-- The scheme will not work, if we define memo-fib to the (memoize fib), since
-  the fib will not automatically called memo-fib, but if we globally set! `fib`
-  to `(memoize fib)`, then (memoize fib) works.
+- The scheme will not work, if we define `memo-fib` to the `(memoize fib)`,
+  since the fib will not automatically call `memo-fib`, but if we globally set
+  `fib` to `(memoize fib)`, then `(memoize fib)` works.
