@@ -2,6 +2,8 @@
 (require sicp)
 (print-as-expression #f)
 (print-mpair-curly-braces #f)
+(require "wire.rkt")
+(provide (all-defined-out))
 
 (define (or-gate a1 a2 output)
   (define (or-action-procedure)
@@ -15,6 +17,7 @@
   'ok)
 
 (define (logical-or s1 s2)
-  (cond [(> (+ s1 s2) 0) 1]
+  (cond [(= (+ s1 s2) 2) 1]
+        [(= (+ s1 s2) 1) 1]
         [(= (+ s1 s2) 0) 0]
-        (else (error "Invalid signal" s))))
+        (else (error "Invalid signal" s1 s2))))

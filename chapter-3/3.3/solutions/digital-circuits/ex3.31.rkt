@@ -1,0 +1,6 @@
+#lang racket
+(require sicp)
+(print-as-expression #f)
+(print-mpair-curly-braces #f)
+(require "wire.rkt")
+(require "basic-gates.rkt")

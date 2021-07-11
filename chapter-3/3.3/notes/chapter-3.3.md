@@ -184,6 +184,13 @@ state:
   which actions ("events") trigger further events that happen at a later time,
   which in turn trigger more events, and so on.
 
+- There are _`wires`_, which carry _`digital signals`_. A `digital signal` may
+  at any moment have only one of two possible valuess, 0 and 1.
+
+- There are also various types of digital _`function boxes`_, which connect
+  wires carrying input signals to other output wires. Such boxes produce output
+  signals computed from their input signals.
+
 ### Primitive function boxes
 
 - To build function boxes, we use the following operations on wires:
@@ -195,7 +202,7 @@ state:
   ;; changes the value of the signal on the wire to the new value.
   (add-action! <wire> <procedure of no arguments>)
   ;; asserts that the designated procedure should be run whenever the signal on
-  ;; the wire changes value. Such procedures are the vehicles by which changes 
+  ;; the wire changes value. Such procedures are the vehicles by which changes
   ;; in the signal value on the wire are communicated to other wires.
   ```
 
@@ -225,3 +232,9 @@ state:
     (add-action! a2 and-action-procedure)
     'ok)
   ```
+
+### Representing wires
+
+### The agenda
+
+### A sample simulation
