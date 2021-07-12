@@ -237,4 +237,13 @@ state:
 
 ### The agenda
 
+- `(make-agenda)`: returns a new empty agenda.
+- `(empty-agenda? <agenda>)`: is true if the specified agenda is empty.
+- `(first-agenda-item <agenda>)`: returns the first item on the agenda.
+- `(remove-first-agenda-item! <agenda>)`: modifies the agenda by removing the
+  first item.
+- `(add-to-agenda! <time> <action> <agenda>)`: modifies the agenda by adding the
+  given action procedure to be run at the specified time.
+- `(current-time <agenda>)`: returns the current simulation time.
+
 ### A sample simulation

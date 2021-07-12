@@ -53,3 +53,13 @@
         (first-item)
         (remove-first-agenda-item! the-agenda)
         (propagate))))
+
+(define (probe name wire)
+  (add-action! wire
+               (lambda ()
+                 (display name)
+                 (display " ")
+                 (display (current-time the-agenda))
+                 (display "  New-value = ")
+                 (display (get-signal wire))
+                 (newline))))
