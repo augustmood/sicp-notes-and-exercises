@@ -3,8 +3,8 @@
 <p style="color:#FF6666; font-weight: bold; font-style: italic"> All the codes
 and some sentences in this note are from the book: SICP <p>
 
-- In order to model compound objecs with chaging state, we will design data
-  abstractions to include, in addtion to selectors and constructors, operations
+- In order to model compound objects with changing state, we will design data
+  abstractions to include, in addition to selectors and constructors, operations
   called `mutators`, which modify data objects.
 
 - Data objects for which mutators are defined are known as
@@ -65,7 +65,7 @@ and some sentences in this note are from the book: SICP <p>
   - A queue is represented as a pair of pointers, `front-ptr` and `rear-ptr`,
     which indicate the first and last pairs in an ordinary list.
 
-  - To define the queue operations we use the following procedures, which enbale
+  - To define the queue operations we use the following procedures, which enable
     us to select and to modify the front and rear pointers of a queue:
 
     ```scheme
@@ -101,7 +101,7 @@ and some sentences in this note are from the book: SICP <p>
 ## 3.3.3 Representing Tables
 
 - We build the table as a _`headed list`_, a headed list has a special backbone
-  pair at the beginning, whichi holds a dummy "record" -- in this case (examples
+  pair at the beginning, which holds a dummy "record" -- in this case (examples
   given by the book) the arbitrarily chosen symbol `*table*`.
 
 - To extract information from a table we use the `lookup` procedure, which takes
@@ -185,7 +185,7 @@ state:
   which in turn trigger more events, and so on.
 
 - There are _`wires`_, which carry _`digital signals`_. A `digital signal` may
-  at any moment have only one of two possible valuess, 0 and 1.
+  at any moment have only one of two possible values, 0 and 1.
 
 - There are also various types of digital _`function boxes`_, which connect
   wires carrying input signals to other output wires. Such boxes produce output
@@ -247,3 +247,211 @@ state:
 - `(current-time <agenda>)`: returns the current simulation time.
 
 ### A sample simulation
+
+### Implementing the agenda
+
+## 3.3.5 Propagation of Constraints
+
+- In this section, we sketch the design of a language that enables us to work in
+  terms of relations themselves. The primitive elements of the language are
+  _`primitive constraints`_, which state that certain relations hold between
+  quantities. For example, `(adder a b c)` specifies that the quantities `a`,
+  `b`, and `c` must be related by the equation `a + b = c`, `(multiplier x y z)`
+  expresses the constraint `xy = z`, and `(constant 3.14 x)` says that the value
+  of `x` must be `3.14`.
+
+- Our language provides a means of combining primitive constraints in order to
+  express more complex relations. We combine constraints by constructing
+  `constraint networks`, in which constraints are joined by `connectors`. A
+  connector is an object that "holds" a value that may participate in one or
+  more constraints.
+
+### Using the constraint system
+
+- The non-directionality of computation is the distinguishing feature of
+  constraint-based systems.
+
+### Implementing the constraint system
+
+- The basic operations on connectors are the following:
+
+  - `(has-value? <connector>)`
+
+    tells whether the connector has a value.
+
+  - `(get-value <connector>)`
+
+    returns the connector's current value.
+
+  - `(set-value! <connector> <new-value> <informant>)`
+
+    indicates that the informant is requesting the connector to set its value to
+    the new value.
+
+  - `(forget-value! <connector> <retractor>)`
+
+    tells the connector that the retractor is requesting it to forget its value.
+
+  - `(connect <connector> <new-constraint>)`
+
+    tells the connector to participate in the new constraint.
+
+- Implementations is also given by the book:
+
+  ```scheme
+  (define (adder a1 a2 sum)
+    (define (process-new-value)
+      (cond ((and (has-value? a1) (has-value? a2))
+            (set-value! sum
+                        (+ (get-value a1) (get-value a2))
+                        me))
+            ((and (has-value? a1) (has-value? sum))
+            (set-value! a2
+                        (- (get-value sum) (get-value a1))
+                        me))
+            ((and (has-value? a2) (has-value? sum))
+            (set-value! a1
+                        (- (get-value sum) (get-value a2))
+                        me))))
+    (define (process-forget-value)
+      (forget-value! sum me)
+      (forget-value! a1 me)
+      (forget-value! a2 me)
+      (process-new-value))
+    (define (me request)
+      (cond ((eq? request 'I-have-a-value)
+            (process-new-value))
+            ((eq? request 'I-lost-my-value)
+            (process-forget-value))
+            (else
+            (error "Unknown request -- ADDER" request))))
+    (connect a1 me)
+    (connect a2 me)
+    (connect sum me)
+    me)
+  
+  (define (inform-about-value constraint)
+    (constraint 'I-have-a-value))
+  (define (inform-about-no-value constraint)
+    (constraint 'I-lost-my-value))
+  
+  (define (multiplier m1 m2 product)
+    (define (process-new-value)
+      (cond ((or (and (has-value? m1) (= (get-value m1) 0))
+                 (and (has-value? m2) (= (get-value m2) 0)))
+            (set-value! product 0 me))
+            ((and (has-value? m1) (has-value? m2))
+            (set-value! product
+                        (* (get-value m1) (get-value m2))
+                        me))
+            ((and (has-value? product) (has-value? m1))
+            (set-value! m2
+                        (/ (get-value product) (get-value m1))
+                        me))
+            ((and (has-value? product) (has-value? m2))
+            (set-value! m1
+                        (/ (get-value product) (get-value m2))
+                        me))))
+    (define (process-forget-value)
+      (forget-value! product me)
+      (forget-value! m1 me)
+      (forget-value! m2 me)
+      (process-new-value))
+    (define (me request)
+      (cond ((eq? request 'I-have-a-value)
+            (process-new-value))
+            ((eq? request 'I-lost-my-value)
+            (process-forget-value))
+            (else
+            (error "Unknown request -- MULTIPLIER" request))))
+    (connect m1 me)
+    (connect m2 me)
+    (connect product me)
+    me)
+
+  (define (constant value connector)
+    (define (me request)
+      (error "Unknown request -- CONSTANT" request))
+    (connect connector me)
+    (set-value! connector value me)
+    me)
+
+  (define (probe name connector)
+    (define (print-probe value)
+      (newline)
+      (display "Probe: ")
+      (display name)
+      (display " = ")
+      (display value))
+    (define (process-new-value)
+      (print-probe (get-value connector)))
+    (define (process-forget-value)
+      (print-probe "?"))
+    (define (me request)
+      (cond ((eq? request 'I-have-a-value)
+            (process-new-value))
+            ((eq? request 'I-lost-my-value)
+            (process-forget-value))
+            (else
+            (error "Unknown request -- PROBE" request))))
+    (connect connector me)
+    me)
+
+  (define (make-connector)
+    (let ((value false) (informant false) (constraints '()))
+      (define (set-my-value newval setter)
+        (cond ((not (has-value? me))
+              (set! value newval)
+              (set! informant setter)
+              (for-each-except setter
+                                inform-about-value
+                                constraints))
+              ((not (= value newval))
+              (error "Contradiction" (list value newval)))
+              (else 'ignored)))
+      (define (forget-my-value retractor)
+        (if (eq? retractor informant)
+            (begin (set! informant false)
+                  (for-each-except retractor
+                                    inform-about-no-value
+                                    constraints))
+            'ignored))
+      (define (connect new-constraint)
+        (if (not (memq new-constraint constraints))
+            (set! constraints 
+                  (cons new-constraint constraints)))
+        (if (has-value? me)
+            (inform-about-value new-constraint))
+        'done)
+      (define (me request)
+        (cond ((eq? request 'has-value?)
+              (if informant true false))
+              ((eq? request 'value) value)
+              ((eq? request 'set-value!) set-my-value)
+              ((eq? request 'forget) forget-my-value)
+              ((eq? request 'connect) connect)
+              (else (error "Unknown operation -- CONNECTOR"
+                          request))))
+      me))
+
+  (define (for-each-except exception procedure list)
+    (define (loop items)
+      (cond ((null? items) 'done)
+            ((eq? (car items) exception) (loop (cdr items)))
+            (else (procedure (car items))
+                  (loop (cdr items)))))
+    (loop list))
+  
+  (define (has-value? connector)
+    (connector 'has-value?))
+  (define (get-value connector)
+    (connector 'value))
+  (define (set-value! connector new-value informant)
+    ((connector 'set-value!) new-value informant))
+  (define (forget-value! connector retractor)
+    ((connector 'forget) retractor))
+  (define (connect connector new-constraint)
+    ((connector 'connect) new-constraint))
+  ```
+
+
