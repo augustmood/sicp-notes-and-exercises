@@ -33,10 +33,10 @@ explain how these values can occur.
 ## b.
 
 - ### 50:
-    ![ex3.38-b-01](pics/ex3.38-b-01.svg)
+    ![ex3.38-b-01](pics/ex3.38/ex3.38-b-01.svg)
 
 - ### 90:
-    ![ex3.38-b-01](pics/ex3.38-b-02.svg)
+    ![ex3.38-b-01](pics/ex3.38/ex3.38-b-02.svg)
 
 - ### 110:
-    ![ex3.38-b-01](pics/ex3.38-b-03.svg)
+    ![ex3.38-b-01](pics/ex3.38/ex3.38-b-03.svg)

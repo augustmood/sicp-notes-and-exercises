@@ -33,3 +33,33 @@
   process so that we can be sure that the program behavior is correct.
 
 ### Serializing access to shared state
+
+- Serialization implements the following idea: Processes will execute
+  concurrently, but there will be certain collections of procedures that cannot
+  be executed concurrently. More precisely, serialization creates distinguished
+  sets of procedures such that only one execution of a procedure in each
+  serialized set is permitted to happen at a time. If some procedure in the set
+  is being executed, then a process that attempts to execute any procedure in
+  the set will be forced to wait until the first execution has finished.
+
+### Serializers in Scheme
+
+- parallel-execute:
+
+  ```scheme
+  (parallel-execute <p1> <p2> ... <pk>)
+  ```
+
+  In the _`mit-scheme`_ implementation, the concurrent processes run
+  concurrently with the original scheme process. Also, the value returned by
+  `parallel-execute` is a special control object that can be used to halt the
+  newly created processes.
+
+- We can constrain the concurrency by using the serialized procedures, which are
+  created by serializers. A serializer takes a procedure as argument and returns
+  a serialized procedure that behaves like the original procedure. All calls to
+  a given serializer return serialized procedures in the same set.
+
+### Complexity of using multiple shared resources
+
+
