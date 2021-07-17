@@ -62,4 +62,82 @@
 
 ### Complexity of using multiple shared resources
 
+- While using serializers is relatively straightforward when there is only a
+  single shared resources, concurrent programming can be treacherously diffcult
+  when there are multiple shared resources.
 
+### Implementing serializers
+
+- We implement serializers in terms of a more primitive synchronization
+  mechanism called a mutex.
+
+- A mutex is an object that supports two operations -- the mutex can be
+  acquired, and the mutex can be released. Once a mutex has been acquired, no
+  other acquire operations on that mutex may proceed until the mutex is
+  released.
+
+- The term `mutex` is an abbreviation for _`mutual exclusion`_. The general
+  problem for arranging a mechanism that permits concurrent processes to safely
+  share recourses is called the mutual _`exclusion problem`_. The acquire and
+  release operations were originally called `P` and `V`, from the Dutch word
+  _`passeren`_ (to pass) and _`vrijgeven`_ (to release), in reference to the
+  semaphores used on railroad systems.
+
+- The book gives the implementation of `make-serializer`:
+
+  ```scheme
+  (define (make-serializer)
+    (let ((mutex (make-mutex)))
+      (lambda (p)
+        (define (serialized-p . args)
+          (mutex 'acquire)
+          (let ((val (apply p args)))
+            (mutex 'release)
+            val))
+        serialized-p)))
+  ```
+
+- The mutex is a mutable object that can hold the value true or false, When the
+  value is false, the mutex is available to be acquired. When the value is true,
+  the mutex is unavailable, and any process that attempts to acquire the mutex
+  must wait.
+
+- The book gives the implementation of `make-mutex`:
+
+  ```scheme
+  (define (make-mutex)
+    (let ((cell (list false)))
+      (define (the-mutex m)
+        (cond ((eq? m 'acquire)
+              (if (test-and-set! cell)
+                  (the-mutex 'acquire))) ; retry
+              ((eq? m 'release) (clear! cell))))
+      the-mutex))
+  (define (clear! cell)
+    (set-car! cell false))
+
+  (define (test-and-set! cell)
+    (if (car cell)
+        true
+        (begin (set-car! cell true)
+              false)))
+  ```
+
+- We must guarantee that, once a process has tested the cell and found it to be
+  false, the cell contents will actually be set to true before any other process
+  can test the cell.
+
+### Deadlock
+
+- The situation that each process in a concurrent executing is stalled forever,
+  waiting for the other is called a `deadlock`
+
+- The general technique for avoiding deadlock by numbering the shared resources
+  and acquiring them in order is due to Havender (1968). Situations where
+  deadlock cannot be avoided require `deadlock-recovery` methods, which entail
+  having processes ``back out'' of the deadlocked state and try again.
+
+### Concurrency, time and communication
+
+- In essence, any notion of time in concurrency control must be intimately tied
+  to communication.
