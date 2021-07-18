@@ -1,5 +1,8 @@
 # Chapter 3.4 Concurrency: Time Is of the Essence
 
+<p style="color:#FF6666; font-weight: bold; font-style: italic"> All the codes
+and some sentences in this note are from the book: SICP <p>
+
 - The central issue lurking beneath complexity of state, sameness, and change is
   that by introducing assignment we are forced to admit time into our
   computational models.
