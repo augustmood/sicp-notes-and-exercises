@@ -116,13 +116,53 @@ and some sentences in this note are from the book: SICP <p>
   equivalent to `(memo-proc (lambda () <exp>))`, the `memo-proc` implementation
   is also given:
 
-    ```scheme
-    (define (memo-proc proc)
-        (let ((already-run? false) (result false))
-          (lambda ()
-          (if (not already-run?)
-              (begin (set! result (proc))
-                     (set! already-run? true)
-                     result)
-                  result))))
-    ```
+  ```scheme
+  (define (memo-proc proc)
+      (let ((already-run? false) (result false))
+        (lambda ()
+        (if (not already-run?)
+            (begin (set! result (proc))
+                   (set! already-run? true)
+                   result)
+                result))))
+  ```
+
+## 3.5.2 Infinite Streams
+
+- We can use streams to represent sequences that are infinitely long.
+
+### Defining streams implicitly
+
+- An alternative way to specify streams is to take advantage of delayed
+  evaluation to define streams implicitly, the book gives some examples:
+
+  ```scheme
+  (define ones (cons-stream 1 ones))
+  ;; which is an infinite stream of `one`s:
+
+  (define (add-streams s1 s2)
+    (stream-map + s1 s2))
+
+  (define integers (cons-stream 1 (add-streams one integers)))
+
+  (define fibs (cons-streams 0
+                             (cons-streams 1 (add-streams (streams-cdr fibs)
+                                                          fibs))))
+  (define (scale-stream stream factor)
+    (stream-map (lambda (x) (* x factor)) stream))
+  
+  (define primes
+    (cons-stream
+      2
+      (stream-filter prime? (integers-starting-from 3))))
+  (define (prime? n)
+    (define (iter ps)
+      (cond ((> (square (stream-car ps)) n) true)
+            ((divisible? n (stream-car ps)) false)
+            (else (iter (stream-cdr ps)))))
+    (iter primes))
+  ;; for every n we test for primality, either n is not prime (in which case 
+  ;; there is a prime already generated that divides it) or n is prime (in which
+  ;; case there is a prime already generated -- i.e., a prime less than 
+  ;; n -- that is greater than n).
+  ```
