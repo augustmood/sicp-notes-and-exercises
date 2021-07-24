@@ -13,4 +13,4 @@
 
 (define example (partial-sums integers))
 
-(stream-test example 10)
+(show-stream example 10)

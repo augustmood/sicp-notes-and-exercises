@@ -49,7 +49,15 @@
 
 (define integers (integers-starting-from 1))
 
-(define (stream-test seq n)
+(define (show-stream seq n)
   (stream-for-each 
    (lambda (i) (display (stream-ref seq i)) (newline))
-   (stream-enumerate-interval 0 n)))
+   (stream-enumerate-interval 0 (- n 1))))
+
+(define (general-stream-map proc . argstreams)
+  (if (stream-null? (car argstreams))
+      the-empty-stream
+      (cons-stream
+       (apply proc (map stream-car argstreams))
+       (apply general-stream-map
+              (cons proc (map stream-cdr argstreams))))))

@@ -150,7 +150,7 @@ and some sentences in this note are from the book: SICP <p>
                                                           fibs))))
   (define (scale-stream stream factor)
     (stream-map (lambda (x) (* x factor)) stream))
-  
+
   (define primes
     (cons-stream
       2
@@ -161,8 +161,59 @@ and some sentences in this note are from the book: SICP <p>
             ((divisible? n (stream-car ps)) false)
             (else (iter (stream-cdr ps)))))
     (iter primes))
-  ;; for every n we test for primality, either n is not prime (in which case 
+  ;; for every n we test for primality, either n is not prime (in which case
   ;; there is a prime already generated that divides it) or n is prime (in which
-  ;; case there is a prime already generated -- i.e., a prime less than 
+  ;; case there is a prime already generated -- i.e., a prime less than
   ;; n -- that is greater than n).
   ```
+
+## 3.5.3 Exploiting the Stream Paradigm
+
+- The stream approach can be illuminating because it allows us to build systems
+  with different module boundaries than systems organized around assignment to
+  state variables.
+
+### Formulating iterations as stream processes
+
+- `sqrt` procedure in stream:
+
+  ```scheme
+  (define (sqrt-improve guess x)
+    (average guess (/ x guess)))
+
+  (define (sqrt-stream x)
+    (define guesses
+      (cons-stream 1.0
+                  (stream-map (lambda (guess)
+                                (sqrt-improve guess x))
+                              guesses)))
+    guesses)
+  ```
+
+- Euler accelerator:
+
+  ```scheme
+  (define (euler-transform s)
+    (let ((s0 (stream-ref s 0))           ; Sn-1
+          (s1 (stream-ref s 1))           ; Sn
+          (s2 (stream-ref s 2)))          ; Sn+1
+      (cons-stream (- s2 (/ (square (- s2 s1))
+                            (+ s0 (* -2 s1) s2)))
+                  (euler-transform (stream-cdr s)))))
+  ```
+
+### Infinite streams of pairs
+
+- The implementation given by the book:
+
+  ```scheme
+  (define (pairs s t)
+    (cons-stream
+    (list (stream-car s) (stream-car t))
+    (interleave
+      (stream-map (lambda (x) (list (stream-car s) x))
+                  (stream-cdr t))
+      (pairs (stream-cdr s) (stream-cdr t)))))
+  ```
+
+

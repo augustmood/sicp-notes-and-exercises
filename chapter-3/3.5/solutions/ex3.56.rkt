@@ -29,4 +29,4 @@
                                 (merge (scale-stream S 3) 
                                        (scale-stream S 5)))))
 
-(stream-test S 10)
+(show-stream S 10)
