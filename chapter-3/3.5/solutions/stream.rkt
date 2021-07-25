@@ -5,6 +5,12 @@
 
 (define (stream-cdr stream) (force (cdr stream)))
 
+(define (list-stream . args)
+    (if (null? args)
+        the-empty-stream
+        (cons-stream (car args)
+            (apply list-stream (cdr args)))))
+
 (define (stream-enumerate-interval low high)
   (if (> low high)
       the-empty-stream
@@ -41,8 +47,8 @@
   (stream-for-each display-line s))
 
 (define (display-line x)
-  (newline)
-  (display x))
+  (display x)
+  (newline))
 
 (define (integers-starting-from n)
   (cons-stream n (integers-starting-from (+ n 1))))

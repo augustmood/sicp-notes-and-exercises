@@ -102,5 +102,5 @@
 
 ;; test
 
-; (-w-weight stream-a weight-fn-1 20)
-; (-w-weight stream-b weight-fn-2 20)
+; (show-stream-w-weight stream-a weight-fn-1 20)
+; (show-stream-w-weight stream-b weight-fn-2 20)

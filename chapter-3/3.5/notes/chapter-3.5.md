@@ -216,4 +216,8 @@ and some sentences in this note are from the book: SICP <p>
       (pairs (stream-cdr s) (stream-cdr t)))))
   ```
 
+### Stream as signals
 
+- We can use streams to model signal-processing systems in a very direct way,
+  representing the values of a signal at successive time intervals as
+  consecutive elements of a stream.
