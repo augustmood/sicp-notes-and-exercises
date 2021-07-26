@@ -221,3 +221,22 @@ and some sentences in this note are from the book: SICP <p>
 - We can use streams to model signal-processing systems in a very direct way,
   representing the values of a signal at successive time intervals as
   consecutive elements of a stream.
+
+## 3.5.4 Streams and Delayed Evaluation
+
+- `delay` is crucial for using streams to model signal-processing systems that
+  contain loops. Without `delay`, our models would have to be formulated so that
+  the inputs to any signal-processing component would be fully evaluated before
+  the output could be produced.
+
+### Normal-order evaluation
+
+- Creating sepate classes of procedures forces us to create separate classes of
+  higher-order procedures as well.
+
+- One way to avoid the need for two different classes of procedures is to make
+  all procedures take delayed arguments. We could adopt a model of evaluation in
+  which all arguments to procedures are automatically delayed and arguments are
+  forced only when they are actually needed (for example, when they are required
+  by a primitive operation), and this would transform our language to use
+  normal-order evaluation.
