@@ -13,18 +13,10 @@
         [pos-x (/ (+ x1 x2) 2)]
         [pos-y (/ (+ y1 y2) 2)]
         [radius (abs (/ (- x1 x2) 2))])
-    ;     (display radius)
-    ;     (newline)
-    ; (display (expt (- curr-x pos-x) 2))
-    ;     (newline)
-    ; (display (expt (- curr-y pos-y) 2))
-    ;     (newline)
     (< (sqrt (+ (expt (- curr-x pos-x) 2) (expt (- curr-y pos-y) 2))) radius)))
 
 (define (estimate-integral pred x1 x2 y1 y2 trials)
-  (define (experiment)
-    (test x1 x2 y1 y2))
-  (monte-carlo trials experiment))
+  (monte-carlo trials (lambda () (pred x1 x2 y1 y2))))
 
 (define (monte-carlo trials experiment)
   (define (iter trials-remaining trials-passed)

@@ -240,3 +240,23 @@ and some sentences in this note are from the book: SICP <p>
   forced only when they are actually needed (for example, when they are required
   by a primitive operation), and this would transform our language to use
   normal-order evaluation.
+
+## 3.5.5 Modularity of Functional Programs and Modularity of Objects
+
+- One of the major benefits of introducing assignment is that we can increase
+  the modularity of our systems by encapsulating, or "hiding," parts of the
+  state of a large system within local variables.
+
+- Stream models can provide an equivalent modularity without the use of
+  assignment.
+
+### A functional-programming view of time
+
+- The object model approximates the world by dividing it into separate pieces.
+  The functional model does not modularize along object boundaries. The object
+  model is useful when the unshared state of the "objects" is much larger than
+  the state that they share. An example of a place where the object viewpoint
+  fails is quantum mechanics, where thinking of things as individual particles
+  leads to paradoxes and confusions. Unifying the object view with the
+  functional view may have little to do with programming, but rather with
+  fundamental epistemological issues.
