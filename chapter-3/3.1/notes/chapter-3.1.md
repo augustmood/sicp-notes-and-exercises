@@ -3,7 +3,7 @@
 <p style="color:#FF6666; font-weight: bold; font-style: italic"> All the codes and some sentences in 
 this note are from the book: SICP <p>
 
-# Chapter 3.1 
+# Chapter 3.1 Assignment and Local State
 
 - Each computational object must have its own `local state variables` describing the actual object's 
 state. Since the states of objects in the system being modeled change over time, the state variables
