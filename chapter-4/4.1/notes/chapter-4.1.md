@@ -172,3 +172,56 @@ to set-variable-value! to be installed in the designated environment.
 
 _This implementation of define ignores a subtle issue in the handling of
 internal definitions, although it works correctly in most cases._
+
+## Chapter 4.1.3 Evaluator Data Structures
+
+In addition to defining the external syntax of expressions, the evaluator
+implementation must also define the data structures that the evaluator
+manipulates internally, as part of the execution of a program.
+
+### Testing of predicates
+
+```scheme
+(define (true? x)
+  (not (eq? x false)))
+(define (false? x)
+  (eq? x false))
+```
+
+### Representing procedures
+
+### Operations on Environment
+
+- An `environment` is a sequence of frames, where each frame is a table of
+  bindings that associate variables with their corresponding values.
+
+- We use the following operations for manipulating environments:
+
+  - `(lookup-variable-value <var> <env>)`
+
+    returns the value that is bound to the symbol `<var>` in the environment
+    `<env>`, or signals an error if the variable is unbound.
+
+  - `(extend-environment <variables> <values> <base-env>)`
+
+    returns a new environment, consisting of a new frame in which the symbols in
+    the list `<variables>` are bound to the corresponding elements in the list
+    `<values>`, where the enclosing environment is the environment `<base-env>`.
+
+  - `(define-variable! <var> <value> <env>)`
+
+    adds to the first frame in the environment `<env>` a new binding that
+    associates the variable `<var>` with the value `<value>`.
+
+  - `(set-variable-value! <var> <value> <env>)`
+
+    changes the binding of the variable `<var>` in the environment `<env>` so
+    that the variable is now bound to the value `<value>`, or signals an error
+    if the variable is unbound.
+  
+## Chapter 4.1.4 Running teh Evaluator as a Program
+
+- One advantage of expressing the evaluator as a program is that we can run the 
+program.
+
+
