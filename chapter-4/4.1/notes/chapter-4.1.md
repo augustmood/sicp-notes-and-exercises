@@ -218,10 +218,23 @@ manipulates internally, as part of the execution of a program.
     changes the binding of the variable `<var>` in the environment `<env>` so
     that the variable is now bound to the value `<value>`, or signals an error
     if the variable is unbound.
-  
+
 ## Chapter 4.1.4 Running teh Evaluator as a Program
 
-- One advantage of expressing the evaluator as a program is that we can run the 
-program.
+- One advantage of expressing the evaluator as a program is that we can run the
+  program.
+
+- Global env:
+  ```scheme
+  (define (setup-environment)
+    (let ((initial-env
+          (extend-environment (primitive-procedure-names)
+                              (primitive-procedure-objects)
+                              the-empty-environment)))
+      (define-variable! 'true true initial-env)
+      (define-variable! 'false false initial-env)
+      initial-env))
+  (define the-global-environment (setup-environment))
+  ```
 
 
