@@ -29,6 +29,8 @@ the appropriate clause to `eval` to handle `let` expressions.
 (define (make-lambda parameters body)
   (cons 'lambda (cons parameters body)))
 
+(define (make-let bindings body)
+  (cons 'let (cons bindings body)))
 (define (let? exp) (tagged-list? exp 'let))
 (define (let-bindings exp) (cadr exp))
 (define (let-body exp) (cddr exp))

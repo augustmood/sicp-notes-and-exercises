@@ -237,4 +237,19 @@ manipulates internally, as part of the execution of a program.
   (define the-global-environment (setup-environment))
   ```
 
+## Chapter 4.1.5 Data as Programs
+
+- Our evaluator is seen to be a `universal machine`. It also acts as a bridge
+  between the data objects that are manipulated by our programming language and
+  the programming language itself.
+
+- Any evaluator can emulate any other, the notion of "what can in principle be
+  computed" is independent of the language or the computer, and instead reflects
+  as underlying notion of computability.
+
+## Chapter 4.1.6 Internal Definitions
+
+- A simple way to treat definitions so that internally defined names have truly
+  simultaneous scope -- just create all local variables that will be in the
+  current environment before evaluating any of the value expressions.
 

@@ -3,21 +3,10 @@
 
 (driver-loop)
 
-; (map (lambda (x) (* x 2)) '(1 2 3 4 5))
+; (eval* 
+;  '(map car '((1 2 3) (2 3 4) (3 4 5) (4 5 6) (5 6 7))) 
+;  the-global-environment)
 
-; ((procedure (x) ((* x 2)) 
-; ((
-; (false true car cdr cons null? display read + - * / map) 
-; #f
-; #t 
-; (primitive #<procedure:mcar>) 
-; (primitive #<procedure:mcdr>) 
-; (primitive #<procedure:mcons>) 
-; (primitive #<procedure:null?>) 
-; (primitive #<procedure:mdisplay>) 
-; (primitive #<procedure:mread>) 
-; (primitive #<procedure:+>) 
-; (primitive #<procedure:->) 
-; (primitive #<procedure:*>) 
-; (primitive #<procedure:/>) 
-; (primitive #<procedure:mmap>)))) (1 2 3 4 5))<- a-p-p-args
+;; the `list-of-values` will call eval* on some primitive procedures, which will
+;; produce like (list 'car car) and cannot be used in the underlying lisp 
+;; system.
