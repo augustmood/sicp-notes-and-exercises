@@ -1,6 +1,8 @@
 #lang sicp
 (#%provide (all-defined))
 
+(define void (if #f #f))
+
 (define (true? x)
   (not (eq? x false)))
 (define (false? x)
@@ -96,6 +98,21 @@
             (make-if (cond-predicate first)
                      (sequence->exp (cond-actions first))
                      (expand-clauses rest))))))
+
+(define (unless? exp) (tagged-list? exp 'unless))
+(define (unless-predicate exp) (cadr exp))
+(define (unless-usual-val exp) (caddr exp))
+(define (unless-except-val exp)
+  (if (not (null? (cdddr exp)))
+      (cadddr exp)
+      'false))
+(define (make-unless predicate usual-val except-val)
+  (list 'unless predicate usual-val except-val))
+(define (unless->if exp)
+  (make-if (unless-predicate exp)
+           (unless-except-val exp)
+           (unless-usual-val exp)))
+
 
 (define (make-procedure parameters body env)
   (list 'procedure parameters body env))
@@ -194,9 +211,9 @@
        primitive-procedures))
 
 (define (apply-primitive-procedure* proc args)
-  (newline)
-  (display args)
-  (display "<- a-p-p-args\n")
+  ;   (newline)
+  ;   (display args)
+  ;   (display "<- a-p-p-args\n")
   (let ([apply-in-underlying-scheme* apply])
     (apply-in-underlying-scheme*
      (primitive-implementation proc) args)))
@@ -243,15 +260,16 @@
         ((begin? exp) 
          (eval-sequence* (begin-actions exp) env))
         ((cond? exp) (eval* (cond->if exp) env))
+        ((unless? exp) (eval* (unless->if exp) env))
         ((application? exp)
-
-         (display (operator exp))
-         (display " <- operator\n")
-         (display (operands exp))
-         (display " <- operands\n")
+         
+         ;  (display (operator exp))
+         ;  (display " <- operator\n")
+         ;  (display (operands exp))
+         ;  (display " <- operands\n")
          
          (apply* (eval* (operator exp) env)
-                (list-of-values (operands exp) env)))
+                 (list-of-values (operands exp) env)))
         (else
          (error "Unknown expression type -- EVAL*" exp))))
 
@@ -277,7 +295,7 @@
   (display string) (newline))
 (define (announce-output string)
   (display string) (newline))
-  ; (display string) (newline))
+; (display string) (newline))
 (define (user-print object)
   (if (compound-procedure? object)
       (display (list 'compound-procedure
@@ -301,7 +319,9 @@
 (define (driver-loop)
   (prompt-for-input input-prompt)
   (let ((input (read)))
-    (let ((output (eval* input the-global-environment)))
-      (announce-output output-prompt)
-      (user-print output)))
-  (driver-loop))
+    (if (eq? input 'exit)
+        void
+        (let ((output (eval* input the-global-environment)))
+          (announce-output output-prompt)
+          (user-print output)
+          (driver-loop)))))

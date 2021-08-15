@@ -253,3 +253,7 @@ manipulates internally, as part of the execution of a program.
   simultaneous scope -- just create all local variables that will be in the
   current environment before evaluating any of the value expressions.
 
+## Chapter 4.1.7 Separating Syntactic Analysis from Execution
+
+- The evaluator implemented above is simple, but it is very inefficient, because
+  the syntactic analysis of expressions is interleaved with their execution.
