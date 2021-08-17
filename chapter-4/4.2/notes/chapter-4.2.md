@@ -32,3 +32,36 @@ and some sentences in this note are from the book: SICP <p>
   argument. In a purely `normal-order` language, all compound procedures are
   `non-strict` in each argument, and primitive procedures may be either `strict`
   or `non-strict`.
+
+## 4.2.2 An Interpreter with Lazy Evaluation
+
+- When applying a procedure, the interpreter must determine which arguments are
+  to be evaluated and which are to be delayed. The delayed arguments are not
+  evaluated; instead, they are transformed into objects called _`thunks`_.
+
+- The process of evaluating the expression in a thunk is called _`forcing`_.
+
+- Lazy evaluation combined with memoization is sometimes referred to as
+  call-by-need argument passing, in contrast to call-by-name argument passing.
+  (Call-by-name, introduced in Algol 60, is similar to non-memoized lazy
+  evaluation.) As language designers, we can build our evaluator to memoize, not
+  to memoize, or leave this an option for programmers.
+
+### Modifying the evaluator
+
+### Representing thunks
+
+
+## 4.2.3 Streams as Lazy Lists
+
+- We can represent pairs as procedures:
+  ```scheme
+  (define (cons x y)
+    (lambda (m) (m x y)))
+  (define (car z)
+    (z (lambda (p q) p)))
+  (define (cdr z)
+    (z (lambda (p q) q)))
+  ```
+
+  
