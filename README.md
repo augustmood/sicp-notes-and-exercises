@@ -1,4 +1,4 @@
-# SCIP
+# SICP
 
 This repo contains my notes (mostly snippets from the original book) and my solutions to exercise 
 problems from the book
